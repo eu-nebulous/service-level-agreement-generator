@@ -1,6 +1,8 @@
 package org.seerc.nebulous.sla.components;
 
-public class SLTransition {
+import java.io.Serializable;
+
+public class SLTransition implements Serializable {
 	private String firstSl, secondSl, evaluationPeriod;
 	private int violationThreshold;
 	
@@ -28,6 +30,11 @@ public class SLTransition {
 	}
 	public void setSecondSl(String secondSl) {
 		this.secondSl = secondSl;
+	}
+	@Override
+	public String toString() {
+		return "SLTransition [firstSl = " + firstSl + ", secondSl = " + secondSl + ", evaluationPeriod = "
+				+ evaluationPeriod + ", violationThreshold = " + violationThreshold + "]";
 	}
 	
 	

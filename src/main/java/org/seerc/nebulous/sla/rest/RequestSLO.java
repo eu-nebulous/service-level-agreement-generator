@@ -17,8 +17,13 @@ public class RequestSLO extends SLO{
 		this.slName = slName;
 	}
 
-	public RequestSLO(SLO slo) {
-		
+	public RequestSLO(String slaName, String slName, SLO slo) {
+		this.setFirstArgument(slo.getFirstArgument());
+		this.setOperator(slo.getOperator());
+		this.setSecondArgument(slo.getSecondArgument());
+		this.setSlaName(slaName);
+		this.setSlName(slName);
+		this.setSettlementPricePercentage(slo.getSettlementPricePercentage());
 	}
 	public RequestSLO() {
 		// TODO Auto-generated constructor stub
@@ -50,10 +55,8 @@ public class RequestSLO extends SLO{
 
 	@Override
 	public String toString() {
-		return "RequestSLO [slaName = " + slaName + ", slName = " + slName + ", name = " + sloName + ", sloType = " + sloType
-				+ ", firstArgument = " + firstArgument
-				+ ", operator = " + operator + ", secondArgument = " + secondArgument + "]";
+		return "RequestSLO [slaName = " + slaName + ", sloName = " + sloName + ", slName = " + slName + "]";
 	}
-	
+
 	
 }

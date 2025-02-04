@@ -1,89 +1,67 @@
 package org.seerc.nebulous.sla.components;
 
+import java.io.Serializable;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-public class SLA{
+import org.seerc.nebulous.sla.rest.RequestSLO;
+import org.springframework.stereotype.Component;
+@Component 
+public class SLA implements Serializable{
 	private String slaName;
-	private Map<String, List<SLO>> slos;
+	private List<SL> sls;
 	private Set<Metric> metrics;
-	private List<SLTransition> slTransitions;
-	
+	private List<SLTransition> transitions;
+	private Settlement settlement;
+	public SLA() {
+		sls = new ArrayList<SL>();
+		metrics = new HashSet<Metric>();
+		transitions = new ArrayList<SLTransition>();
+	}
 	public SLA(String slaName) {
 		this.slaName = slaName;
-		slos = new HashMap<String, List<SLO>>();
+		sls = new ArrayList<SL>();
 		metrics = new HashSet<Metric>();
-		slTransitions = new ArrayList<SLTransition>();
-	}
-	
-	
-	
-	public SLA() {
-	}
-
-
-
-	public Map<String, List<SLO>> getSlos() {
-		return slos;
-	}
-
-
-	public List<SLTransition> getSlTransitions() {
-		return slTransitions;
-	}
-
-
-
-	public void setSlTransitions(List<SLTransition> slTransitions) {
-		this.slTransitions = slTransitions;
-	}
-
-
-
-	public void setSlos(Map<String, List<SLO>> slos) {
-		this.slos = slos;
-	}
-	
-	public void setMetrics(Set<Metric> metrics) {
-		this.metrics = metrics;
+		transitions = new ArrayList<SLTransition>();
 	}
 	
 	public String getSlaName() {
 		return slaName;
 	}
-
 	public void setSlaName(String slaName) {
 		this.slaName = slaName;
 	}
-	
+	public List<SL> getSls() {
+		return sls;
+	}
+	public void setSls(List<SL> sls) {
+		this.sls = sls;
+	}
 	public Set<Metric> getMetrics() {
 		return metrics;
 	}
-
-	public void addMetric(Metric metric) {
-		metrics.add(metric);
+	public void setMetrics(Set<Metric> metrics) {
+		this.metrics = metrics;
+	}
+	public List<SLTransition> getTransitions() {
+		return transitions;
+	}
+	public void setTransitions(List<SLTransition> transitions) {
+		this.transitions = transitions;
 	}
 	
-	public void addTransition(SLTransition transition) {
-		slTransitions.add(transition);
+	public Settlement getSettlement() {
+		return settlement;
 	}
-
+	public void setSettlement(Settlement settlement) {
+		this.settlement = settlement;
+	}
 	@Override
 	public String toString() {
-		return "SLA [slaName = " + slaName + ", slos = " + slos + ", metrics = " + metrics + "]";
+		return "CompleteSLA [sls = " + sls + ", metrics = " + metrics + ", transitions = " + transitions + "]";
 	}
-
-	public void addSl(String sl) {
-		slos.put(sl, new ArrayList<SLO>());
-	}
-	public void addSlo(String slName, SLO slo) {
-		slos.get(slName).add(slo);
-	}
-
-
 	
 }

@@ -1,6 +1,8 @@
 package org.seerc.nebulous.sla.components;
 
-public class WindowOutput {
+import java.io.Serializable;
+
+public class WindowOutput implements Serializable {
 	private String type;
 	private Number value;
 	private String unit;

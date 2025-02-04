@@ -12,7 +12,12 @@ public class RawMetric extends Metric{
 		this.setOutput(m.getOutput());
 		this.setWindow(m.getWindow());
 	}
-
+	public RawMetric(String name) {
+		this.setName(name);
+		sensor = null;
+		output = null;
+		window = null;
+	}
 	public Sensor getSensor() {
 		return sensor;
 	}

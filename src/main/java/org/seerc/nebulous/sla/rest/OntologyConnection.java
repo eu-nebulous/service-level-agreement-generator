@@ -15,12 +15,16 @@ public class OntologyConnection{
 	private static OntologyConnection singleton = null;
 	
 	private WebClient client;
+//	private JmsTemplate jmsTemplate;
 
-	private OntologyConnection(String host) {
+	private OntologyConnection( String host) {
 		client = WebClient.create(host); //localhost:80
+//		this.jmsTemplate = jmsTemplate;
+//		jmsTemplate.setPubSubDomain(true);
+
 	}
 	
-	public static OntologyConnection getInstance(String host) {
+	public static OntologyConnection getInstance( String host) {
 		if(singleton == null)
 			singleton = new OntologyConnection(host);
 		
@@ -31,6 +35,10 @@ public class OntologyConnection{
 		return singleton;
 	}
 
+//	public void convertAndSend(String address, Object obj) {
+//		jmsTemplate.convertAndSend(address, obj);
+//
+//	}
 	public void getSimpleConstraint(SimpleConstraint constraint, String constraintName) {
 		constraint.setFirstArgument(getInstances("inverse%20firstArgument%20value%20" + constraintName).get(0));
 		Object secArg = getDataProperty(constraintName, "owlq:secondArgument").get(0);

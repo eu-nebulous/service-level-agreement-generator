@@ -1,11 +1,13 @@
 package org.seerc.nebulous.sla.components;
 
-public class Metric {
+import java.io.Serializable;
+
+public class Metric implements Serializable {
 	
 	protected String name;
 	protected WindowOutput window;
 	protected WindowOutput output;
-	protected boolean isMaximizing;
+//	protected boolean isMaximizing;
 
 
 	public Metric() {}
@@ -34,12 +36,7 @@ public class Metric {
 		this.output = output;
 	}
 		
-	public boolean isMaximizing() {
-		return isMaximizing;
-	}
-	public void setMaximizing(boolean isMaximizing) {
-		this.isMaximizing = isMaximizing;
-	}
+
 	@Override
 	public boolean equals(Object obj) {
 		
@@ -48,7 +45,7 @@ public class Metric {
 		
 		
 		Metric m2 = (Metric) obj;
-		System.out.println(m2.name + "\t" + this.name);
+//		System.out.println(m2.name + "\t" + this.name);
 		
 		return m2.name.equals(this.name);
 	}
@@ -58,8 +55,7 @@ public class Metric {
 	}
 	@Override
 	public String toString() {
-		return "Metric [name = " + name + ", window = " + window + ", output = " + output + ", isMaximizing = "
-				+ isMaximizing + "]";
+		return "Metric [name = " + name + ", window = " + window + ", output = " + output + "]";
 	}
 	
 }

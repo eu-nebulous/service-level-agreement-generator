@@ -1,22 +1,23 @@
 package org.seerc.nebulous.sla.components;
 
-public class SLO extends SimpleConstraint{
+import java.io.Serializable;
+
+public class SLO extends SimpleConstraint implements Serializable{
 	
 //	protected SimpleConstraint qualifyingCondition;
 //	protected boolean soft, negotiable;
-	protected char sloType;
+//	protected char sloType;
 //	protected SLTransition transition;
+	protected String sloName;
 	protected double settlementPricePercentage;
 	
-//	protected double settlementPricePercentage;
-//
-//	public double getSettlementPricePercentage() {
-//		return settlementPricePercentage;
-//	}
-//
-//	public void setSettlementPricePercentage(double settlementPricePercentage) {
-//		this.settlementPricePercentage = settlementPricePercentage;
-//	}
+	public double getSettlementPricePercentage() {
+		return settlementPricePercentage;
+	}
+
+	public void setSettlementPricePercentage(double settlementPricePercentage) {
+		this.settlementPricePercentage = settlementPricePercentage;
+	}
 
 //	public SimpleConstraint getQualifyingCondition() {
 //		return qualifyingCondition;
@@ -43,13 +44,13 @@ public class SLO extends SimpleConstraint{
 //	}
 
 
-	public char getSloType() {
-		return sloType;
-	}
-
-	public void setSloType(char sloType) {
-		this.sloType = sloType;
-	}
+//	public char getSloType() {
+//		return sloType;
+//	}
+//
+//	public void setSloType(char sloType) {
+//		this.sloType = sloType;
+//	}
 	
 
 //	public SLTransition getTransition() {
@@ -61,14 +62,22 @@ public class SLO extends SimpleConstraint{
 //	}
 
 	
-	public double getSettlementPricePercentage() {
-		return settlementPricePercentage;
+	public String getSloName() {
+		return sloName;
 	}
 
-	public void setSettlementPricePercentage(double settlementPricePercentage) {
-		this.settlementPricePercentage = settlementPricePercentage;
+	public void setSloName(String sloName) {
+		this.sloName = sloName;
 	}
-	
+
+//	public double getSettlementPricePercentage() {
+//		return settlementPricePercentage;
+//	}
+//
+//	public void setSettlementPricePercentage(double settlementPricePercentage) {
+//		this.settlementPricePercentage = settlementPricePercentage;
+//	}
+//	
 	@Override
 	public String toString() {
 		return super.toString();

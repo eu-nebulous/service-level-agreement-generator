@@ -7,19 +7,25 @@ import java.util.List;
 import org.seerc.nebulous.sla.components.CompositeMetric;
 import org.seerc.nebulous.sla.components.Metric;
 import org.seerc.nebulous.sla.components.RawMetric;
+import org.seerc.nebulous.sla.components.SL;
 import org.seerc.nebulous.sla.components.SLA;
 import org.seerc.nebulous.sla.components.SLO;
 import org.seerc.nebulous.sla.components.SLTransition;
 import org.seerc.nebulous.sla.components.Sensor;
+import org.seerc.nebulous.sla.components.Settlement;
 import org.seerc.nebulous.sla.components.WindowOutput;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SLAGetController {
 	private OntologyConnection ontology = OntologyConnection.getInstance();
-
+	
 	/**
 	 * @param slaName
 	 * @return sla json
@@ -46,22 +52,32 @@ public class SLAGetController {
 		
 		sla = new SLA(slaFragment);
 
-		for(String slURI : ontology.getInstances(encode("inverse serviceLevel value " + slaFragment))) {
+		List<String> slUris = ontology.getInstances(encode("inverse serviceLevel value " + slaFragment));
+//		System.out.println(slUris);
+		for(String slURI : slUris) {
 			final String slName = slURI.split("SLA_\\d+_")[1];
-			sla.addSl(slName);
+			SL sl = new SL();
+			sl.setSlName(slName);
+			sla.getSls().add(sl);
 			
-			for(String sloName : ontology.getInstances(encode("inverse constraint value " + slURI))) {
-				System.out.println("SLO name: " + sloName);
+			List<String> sloUris = ontology.getInstances(encode("inverse owlqConstraint value " + slURI));
+			
+//			System.out.println("inverse constraint value " + slURI);
+//			System.out.println(sloUris);
+			for(String sloName : sloUris) {
+//				System.out.print("SLO name: " + sloName);
+//				System.out.println("\tSL name: " + slName);
 				SLO slo = new SLO();
-						
+					
 				ontology.getSimpleConstraint(slo, sloName);
 				
 				String fullSloName = slo.getFirstArgument();
 				slo.setFirstArgument(slo.getFirstArgument().replaceFirst("(SLA_\\d+_)", ""));
+				slo.setSloName(sloName);
+//				System.out.println(slo);
 				
-				
-				slo.setSloType(ontology.getSuperclasses(encode("{" + sloName + "}"), true).get(0).charAt(0));	
-				
+//				slo.setSloType(ontology.getSuperclasses(encode("{" + sloName + "}"), true).get(0).charAt(0));	
+				 
 //				if(slo.getSloType() == 'R') {
 //					SLTransition trans = new SLTransition();
 //					String tName = "SL_TRANSITION_" + sloName;
@@ -76,7 +92,7 @@ public class SLAGetController {
 //					}
 //				}
 //				System.out.println(slName + " " + slo);
-				sla.addSlo(slName, slo);
+				sl.addSlo(slo);
 				
 				Metric m = new Metric();
 				m.setName(slo.getFirstArgument());
@@ -120,9 +136,9 @@ public class SLAGetController {
 					m = cm;
 				}
 				
-				m.setMaximizing((boolean) ontology.getDataProperty(fullSloName, "neb:isMaximizing").get(0));
+//				m.setMaximizing((boolean) ontology.getDataProperty(fullSloName, "neb:isMaximizing").get(0));
 
-				sla.addMetric(m);
+				sla.getMetrics().add(m);
 				
 	//			slo.setNegotiable((boolean) ontology.getDataProperty(sloName, "owlq:negotiable").get(0));
 	//			slo.setSoft((boolean) ontology.getDataProperty(sloName, "owlq:soft").get(0));
@@ -133,23 +149,37 @@ public class SLAGetController {
 	//				ontology.getSimpleConstraint(qc, sloName + "_QC");
 	//				slo.setQualifyingCondition(qc);
 	//			}
-	//			slo.setSettlementPricePercentage((double) ontology.getDataProperty(sloName + "_PN_C", "owlq:settlementPricePercentage").get(0));
+				slo.setSettlementPricePercentage((double) ontology.getDataProperty(sloName + "_PN_C", "owlq:settlementPricePercentage").get(0));
 			}
 		}
 		ontology.getInstances(encode("inverse slTransition value " + slaFragment)).forEach(slTransName -> {
-				
+
 			SLTransition transition = new SLTransition();
-			System.out.println(slTransName);
+//			System.out.println("slTransName:" + slTransName);
+						
 			transition.setEvaluationPeriod((String) ontology.getDataProperty("neb:" + slTransName, "owlq:evaluationPeriod").get(0));
 			transition.setViolationThreshold((int) ontology.getDataProperty("neb:" + slTransName, "owlq:violationThreshold").get(0));
-			transition.setFirstSl(ontology.getInstances(encode("inverse firstSL some Thing and SL")).get(0).split("SLA_\\d+_SL_")[1]);
-			transition.setSecondSl(ontology.getInstances(encode("inverse secondSL some Thing and SL")).get(0).split("SLA_\\d+_SL_")[1]);
-				
-			sla.addTransition(transition);
+			transition.setFirstSl(ontology.getInstances(encode("inverse firstSL value " + slTransName)).get(0).split("SLA_\\d+_SL_")[1]);
+			transition.setSecondSl(ontology.getInstances(encode("inverse secondSL value " + slTransName)).get(0).split("SLA_\\d+_SL_")[1]);
+//			System.out.println(transition);
+//			sla.getTransitions().add(transition);
 		});	
+		
+//    	System.out.println(sla);
 
+		ontology.getInstances(encode("inverse settlement value " + slaFragment)).forEach(settlementName -> {
+			Settlement s = new Settlement();
+			s.setConcernedSL(Integer.parseInt(ontology.getInstances(encode("inverse concernedSL value " + slaFragment)).get(0).split("_")[3]));
+			s.setEvaluationPeriod((String) ontology.getDataProperty("neb:" + settlementName, "owlq:evaluationPeriod").get(0));
+			s.setSettlementCount((int) ontology.getDataProperty("neb:" + settlementName, "owlq:settlementCount").get(0));
+
+//			sla.setSettlement(s);
+		});
+		
+		
 		return sla;	
 	}
+		
 	
 	private WindowOutput getWindowOutput(String slaName, Metric m, String type) {
 		if(ontology.countInstances(encode("{" + slaName + "_" + m.getName() + "_" + type + "}")) != 1)
