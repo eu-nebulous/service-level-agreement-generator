@@ -16,6 +16,7 @@ import org.seerc.nebulous.sla.components.ComparisonOperator;
 import org.seerc.nebulous.sla.components.SLA;
 import org.seerc.nebulous.sla.components.SLO;
 import org.seerc.nebulous.sla.components.CompositeMetric;
+import org.seerc.nebulous.sla.components.Constraint;
 import org.seerc.nebulous.sla.components.DeviceSLA;
 import org.seerc.nebulous.sla.components.GeoLocation;
 import org.seerc.nebulous.sla.components.InMemorySLAAttributes;
@@ -23,6 +24,7 @@ import org.seerc.nebulous.sla.components.Metric;
 import org.seerc.nebulous.sla.components.NodeProperties;
 import org.seerc.nebulous.sla.components.OperatingSystem;
 import org.seerc.nebulous.sla.components.RawMetric;
+import org.seerc.nebulous.sla.components.RecurseConstraint;
 import org.seerc.nebulous.sla.components.SL;
 
 import org.seerc.nebulous.sla.components.SLTransition;
@@ -205,7 +207,7 @@ public class SLAPostController {
 		ontology.createIndividual(slName, "owlq:AssetCollection"); //Create the SL
 		ontology.createObjectProperty("owlq:serviceLevel", rsl.getSlaName(), slName);	 //Connect it to the SLA	
 		ontology.createObjectProperty("odrl:partOf", slName,  rsl.getSlaName());	 //Connect it to the SLA		
-
+		ontology.createObjectProperty("owlq:logicalOperator", slName, "owlq:" + rsl.getOperator());
     	
     	return slName;
     }
@@ -570,7 +572,7 @@ public class SLAPostController {
     @PostMapping("create/sla")
     public void createCompleteSla(@RequestBody SLA sla) { 	
     	
-    	System.out.println(sla);
+    	System.out.println(sla.getSls());
     	
     	
     	final String slaName = this.createSLA();
@@ -578,19 +580,20 @@ public class SLAPostController {
     	sla.getMetrics().forEach(metric -> {
     		String metricName = this.createMetric(new RequestMetric(metric, slaName));
     		ontology.createObjectProperty("odrl:partOf", metricName, slaName);
-    		System.out.println(metricName);
     	});
     	
     	for(int i = 0; i < sla.getSls().size(); i++) {
     		final SL sl =  sla.getSls().get(i);
-    		final String slName = this.createSL(new RequestSL(slaName, sl.getSlName()));
-    		if(sl.getSlName().equals("1"))
-    			ontology.createDataProperty("neb:active", slName, true);
-    		else
-    			ontology.createDataProperty("neb:active", slName, false);
-
-    		for(int j = 0; j < sl.getSlos().size(); j++) {
-    			sl.getSlos().get(j).setSloName(this.createSLO(new RequestSLO(slaName, slName, sl.getSlos().get(j))));
+    		
+    		final String slName = this.createSL(new RequestSL(slaName, sl));
+    
+    		RecurseConstraint rc = new RecurseConstraint(slName, slaName);
+    		for(Constraint c : sl.getOperands()) {
+    			
+    			String constName = rc.buildConstraint(c);
+    			
+    			ontology.createObjectProperty("owlq:constraint", slName, constName);
+    			ontology.createObjectProperty("odrl:partOf", constName, slName);
     		}
     	}
     	

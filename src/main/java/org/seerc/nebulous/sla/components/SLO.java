@@ -2,6 +2,9 @@ package org.seerc.nebulous.sla.components;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@JsonDeserialize(as = SLO.class)
 public class SLO extends SimpleConstraint implements Serializable{
 	
 //	protected SimpleConstraint qualifyingCondition;
@@ -11,6 +14,12 @@ public class SLO extends SimpleConstraint implements Serializable{
 	protected String sloName;
 	protected double settlementPricePercentage;
 	
+	
+	
+	public SLO() {
+		super();
+	}
+
 	public double getSettlementPricePercentage() {
 		return settlementPricePercentage;
 	}
@@ -18,7 +27,13 @@ public class SLO extends SimpleConstraint implements Serializable{
 	public void setSettlementPricePercentage(double settlementPricePercentage) {
 		this.settlementPricePercentage = settlementPricePercentage;
 	}
+	public String getSloName() {
+		return sloName;
+	}
 
+	public void setSloName(String sloName) {
+		this.sloName = sloName;
+	}
 //	public SimpleConstraint getQualifyingCondition() {
 //		return qualifyingCondition;
 //	}
@@ -26,6 +41,13 @@ public class SLO extends SimpleConstraint implements Serializable{
 //	public void setQualifyingCondition(SimpleConstraint qualifyingCondition) {
 //		this.qualifyingCondition = qualifyingCondition;
 //	}
+
+	@Override
+	public String toString() {
+		return "SLO [sloName = " + sloName + ", settlementPricePercentage = " + settlementPricePercentage
+				+ ", firstArgument = " + firstArgument + ", operator = " + operator + ", secondArgument = "
+				+ secondArgument + "]";
+	}
 
 //	public boolean isSoft() {
 //		return soft;
@@ -62,13 +84,7 @@ public class SLO extends SimpleConstraint implements Serializable{
 //	}
 
 	
-	public String getSloName() {
-		return sloName;
-	}
 
-	public void setSloName(String sloName) {
-		this.sloName = sloName;
-	}
 
 //	public double getSettlementPricePercentage() {
 //		return settlementPricePercentage;
@@ -78,10 +94,7 @@ public class SLO extends SimpleConstraint implements Serializable{
 //		this.settlementPricePercentage = settlementPricePercentage;
 //	}
 //	
-	@Override
-	public String toString() {
-		return super.toString();
-	}
+
 
 
 
