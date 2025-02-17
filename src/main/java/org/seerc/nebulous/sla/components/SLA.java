@@ -11,11 +11,13 @@ import org.seerc.nebulous.sla.rest.RequestSLO;
 import org.springframework.stereotype.Component;
 @Component 
 public class SLA implements Serializable{
+	
 	private String slaName;
 	private List<SL> sls;
 	private Set<Metric> metrics;
 	private List<SLTransition> transitions;
 	private Settlement settlement;
+	
 	public SLA() {
 		sls = new ArrayList<SL>();
 		metrics = new HashSet<Metric>();

@@ -92,7 +92,7 @@ public class SLAGetController {
 //					}
 //				}
 //				System.out.println(slName + " " + slo);
-				sl.addSlo(slo);
+				sl.addOperand(slo);
 				
 				Metric m = new Metric();
 				m.setName(slo.getFirstArgument());

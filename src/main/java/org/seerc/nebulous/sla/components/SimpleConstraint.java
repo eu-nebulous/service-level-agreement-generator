@@ -1,9 +1,12 @@
 package org.seerc.nebulous.sla.components;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 /**
  *  A simple constraint is made up of a first and second argument along with an operator. They take th form of first argument operator second argument. The first argument refers to a Metric and the second to a threshold value, which if surpassed is considered a violation.
  */
-public class SimpleConstraint {
+@JsonDeserialize(as = SimpleConstraint.class)
+public class SimpleConstraint implements Constraint{
 		
 	protected String firstArgument;
 	protected ComparisonOperator operator;
@@ -27,10 +30,15 @@ public class SimpleConstraint {
 	public void setSecondArgument(Object secondArgument) {
 		this.secondArgument = secondArgument;
 	}
+
+	@Override
+	public boolean isComplex() {
+		return false;
+	}
 	@Override
 	public String toString() {
-		return "SimpleConstraint [firstArgument = " + firstArgument + ", operator = " + operator
-				+ ", secondArgument = " + secondArgument + "]";
+		return "SimpleConstraint [firstArgument = " + firstArgument + ", operator = " + operator + ", secondArgument = "
+				+ secondArgument + "]";
 	}
 	
 	

@@ -1,16 +1,20 @@
 package org.seerc.nebulous.sla.rest;
 
-public class RequestSL {
+import org.seerc.nebulous.sla.components.SL;
+
+public class RequestSL extends SL{
 	private String slaName, slName;
 
 	public String getSlaName() {
 		return slaName;
 	}
 		
-	public RequestSL(String slaName, String slName) {
+	public RequestSL(String slaName,  SL sl) {
 		super();
-		this.slaName = slaName;
-		this.slName = slName;
+		this.setSlaName(slaName);
+		this.setSlName(sl.getSlName());
+		this.setOperands(sl.getOperands());
+		this.setOperator(sl.getOperator());
 	}
 
 	public void setSlaName(String slaName) {
