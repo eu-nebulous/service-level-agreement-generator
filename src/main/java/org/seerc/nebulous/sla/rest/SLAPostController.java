@@ -237,7 +237,7 @@ public class SLAPostController {
 		ontology.createObjectProperty("owlq:firstArgument", "neb:" + sloName, "neb:" + slaName + "_" + slo.getFirstArgument()); //Connect it with its Metric
 		
 		//Add second argument and operator.
-		ontology.createDataProperty("owlq:secondArgument", "neb:" + sloName, slo.getSecondArgument());		
+		ontology.createDataProperty("odrl:rightOperand", "neb:" + sloName, slo.getSecondArgument());		
 		ontology.createObjectProperty("owlq:operator", "neb:" + sloName, "owlq:" + slo.getOperator().toString());
 		
 		//Connect to SL.
