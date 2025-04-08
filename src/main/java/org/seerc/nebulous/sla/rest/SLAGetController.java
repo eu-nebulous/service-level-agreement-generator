@@ -2,8 +2,11 @@ package org.seerc.nebulous.sla.rest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.qpid.protonj2.client.Message;
 import org.seerc.nebulous.sla.components.CompositeMetric;
 import org.seerc.nebulous.sla.components.Metric;
 import org.seerc.nebulous.sla.components.RawMetric;
@@ -16,21 +19,79 @@ import org.seerc.nebulous.sla.components.Settlement;
 import org.seerc.nebulous.sla.components.WindowOutput;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import eu.nebulouscloud.exn.Connector;
+import eu.nebulouscloud.exn.core.Consumer;
+import eu.nebulouscloud.exn.core.Context;
+import eu.nebulouscloud.exn.core.Handler;
+import eu.nebulouscloud.exn.core.Publisher;
+import eu.nebulouscloud.exn.handlers.ConnectorHandler;
+import eu.nebulouscloud.exn.settings.StaticExnConfig;
+
 @RestController
 public class SLAGetController {
 	private OntologyConnection ontology = OntologyConnection.getInstance();
-	
+	private EXNConnection exn = EXNConnection.getInstance();
 	/**
 	 * @param slaName
 	 * @return sla json
 	 * @throws Exception 
 	 */
+	@CrossOrigin
+	@GetMapping("/get/metrics/sla")
+	List<Metric> test(@RequestParam("appId") String appId) {
+		List<Metric> res = new ArrayList<Metric>();
+		List<Map<String, Object>> metrics = (List<Map<String, Object>>) exn.getApp(appId).get("metrics");
+	
+		for(var m: metrics) {
+			Metric metric = new Metric();
+			
+			metric.setName((String) m.get("name"));
+			
+			String outputKey = null;
+			if(m.containsKey("output"))
+				outputKey = "output";
+			else if(m.containsKey("outputRaw"))
+				outputKey = "outputRaw";
+			
+			if(outputKey != null) {
+				Map out = (Map) m.get(outputKey);
+				WindowOutput output = new WindowOutput();
+				output.setType((String) out.get("type"));
+				output.setUnit((String) out.get("unit"));
+				output.setValue((Number) out.get("interval"));
+				
+				metric.setOutput(output);
+
+			}
+			
+			res.add(metric);
+		}
+	
+		return res;
+
+	}
+	
+	@GetMapping("/get/metrics")
+	public List<String> getMetrics(@RequestParam("slaName") String slaName){
+		List<String> result = new ArrayList<String>(ontology.getInstances("Metric and partOf value " + slaName));
+
+		for(int i = 0; i < result.size(); i++) 
+			result.add(i, result.remove(i).split("_")[2]);
+		
+		result.add("violationThreshold");
+		result.add("settlementCount");
+		result.add("evaluationPeriod");
+
+		return result;
+	}
+
 	
 	@GetMapping("/query/sla")
 	public SLA getSLA(@RequestParam("slaName") String slaName) throws Exception {
@@ -180,7 +241,6 @@ public class SLAGetController {
 		return sla;	
 	}
 		
-	
 	private WindowOutput getWindowOutput(String slaName, Metric m, String type) {
 		if(ontology.countInstances(encode("{" + slaName + "_" + m.getName() + "_" + type + "}")) != 1)
 			return null;

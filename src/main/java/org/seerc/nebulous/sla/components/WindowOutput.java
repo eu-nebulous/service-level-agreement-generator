@@ -7,6 +7,8 @@ public class WindowOutput implements Serializable {
 	private Number value;
 	private String unit;
 	
+	
+	
 	public String getType() {
 		return type;
 	}
