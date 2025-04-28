@@ -25,7 +25,8 @@ public class RecurseConstraint {
 			ontology.createIndividual(constraintName, "owlq:SLO");
 			ontology.createObjectProperty("owlq:firstArgument", constraintName, slaName +  "_" + constr.getFirstArgument());
 			ontology.createObjectProperty("owlq:operator", constraintName, "owlq:" + constr.getOperator().toString());
-			ontology.createDataProperty("odrl:rightOperand", constraintName, constr.getSecondArgument());
+			ontology.createDataProperty("owlq:secondArgument", constraintName, constr.getSecondArgument());
+
 			
 			System.out.println(constraintName);
 			if(constr.getSettlementPricePercentage() >= 0d ) {

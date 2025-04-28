@@ -45,6 +45,142 @@ public class SLAPostController {
 //	private SALConnection sal = SALConnection.getInstance();
 //	private ActiveMQConnection cluster = ActiveMQConnection.getInstance();
 	
+
+	Map<String, InMemorySLAAttributes> slaAttributes = new HashMap<String, InMemorySLAAttributes>();
+
+
+	@PostMapping("create/models")
+	public void parseModels() {
+		
+		Map<String, String> slaNames = new HashMap<String, String>();
+		
+		Map<String, RequestMetric> metrics = new HashMap<String, RequestMetric>();
+		Map<String, RequestSLO> requirements = new HashMap<String, RequestSLO>();
+		
+		parseMetricModel(slaNames, metrics, requirements);
+		parseKubevela(slaNames, requirements);
+		
+		//Inserting into ontology
+		for(Map.Entry<String, RequestMetric> entry: metrics.entrySet()) 
+			createMetric(entry.getValue());
+		
+		for(Map.Entry<String, RequestSLO> entry: requirements.entrySet())
+			createSLO(entry.getValue());
+	}
+	
+	@PostMapping("create/kubevela")
+	public void parseKubevela(Map<String, String> slaNames, Map<String, RequestSLO> requirements ) {
+		try {
+			KubevelaParser kubevela = new KubevelaParser((new FileInputStream(new File("KubeVela_v2.yaml"))));
+			
+			for(int i = 0; i <  kubevela.getComponents().size(); i++) {
+				Map<String, Map<String, String>> resources = kubevela.getResources(i);
+				
+				if(resources == null || resources.size() == 0)
+					continue;
+				
+				String slaName = slaNames.get(kubevela.getComponentName(i));
+	
+				RequestSLO maxCpu = new RequestSLO();
+//				System.out.println(resources);
+				maxCpu.setFirstArgument("neb:MAX_CPU_CORES");
+				maxCpu.setOperator(ComparisonOperator.LESS_EQUAL_THAN);
+				maxCpu.setSecondArgument(resources.get("limits").get("cpu"));
+				maxCpu.setSlaName(slaName);
+//				maxCpu.setSloType('D');
+				
+				RequestSLO maxRam= new RequestSLO();
+				
+				maxRam.setFirstArgument("neb:MAX_RAM");
+				maxRam.setOperator(ComparisonOperator.LESS_EQUAL_THAN);
+				maxRam.setSecondArgument(resources.get("limits").get("memory"));
+				maxRam.setSlaName(slaName);
+//				maxRam.setSloType('D');
+
+				
+				RequestSLO requestedCpu = new RequestSLO();
+				
+				requestedCpu.setFirstArgument("neb:REQUESTED_CPU_CORES");
+				requestedCpu.setOperator(ComparisonOperator.EQUALS);
+				requestedCpu.setSecondArgument(resources.get("requests").get("cpu"));
+				requestedCpu.setSlaName(slaName);
+//				requestedCpu.setSloType('D');
+
+				RequestSLO requestRam = new RequestSLO();
+				
+				requestRam.setFirstArgument("neb:REQUESTED_RAM");
+				requestRam.setOperator(ComparisonOperator.EQUALS);
+				requestRam.setSecondArgument(resources.get("requests").get("memory"));
+				requestRam.setSlaName(slaName);
+//				requestRam.setSloType('D');
+
+				requirements.put(slaName + "_MAX_CPU_CORES", maxCpu);
+				requirements.put(slaName + "_MAX_RAM", maxRam);
+				requirements.put(slaName + "_REQUESTED_CPU_CORES", requestedCpu);
+				requirements.put(slaName + "_REQUESTED_RAM", requestRam);
+
+			}
+					
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	@PostMapping("create/metricModel")
+	public void parseMetricModel(Map<String, String> slaNames, Map<String, RequestMetric> metrics, Map<String, RequestSLO> requirements) {
+		try {
+			MetricModelParser metricModel = new MetricModelParser((new FileInputStream(new File("augmenta_metric_model_draft_v4.yml"))));
+			Map<String, String> references = new HashMap<String, String>();
+
+			for(int i = 0; i < metricModel.getComponents().size(); i++) {
+				
+				String slaName = createSLA();
+				slaNames.put((String) metricModel.getComponent(i).get("name"), slaName);
+				
+				List<Map<String, Object>> reqs = metricModel.getComponentRequirements(i);
+				List<Map<String, Object>> mets = metricModel.getComponentMetrics(i);
+				
+				insertMetrics(slaName, mets, metrics, references);
+				insertRequirements(slaName, reqs, requirements, 'R');
+			} 
+			
+			//scopes
+			for(Object sc : metricModel.getScopes()) {
+				Map<String, Object> scope = (Map<String, Object>) sc;
+				
+				List<String> components = (List<String>) scope.get("components");
+				
+				List<Map<String, Object>> mets = (List<Map<String, Object>>) scope.get("metrics");
+				List<Map<String, Object>> reqs = (List<Map<String, Object>>) scope.get("requirements");
+				if(components != null)
+					for(String comp : components) {
+		 				
+						String slaName = slaNames.get(comp);
+												
+						insertMetrics(slaName, mets, metrics, references);
+						insertRequirements(slaName, reqs, requirements, 'R');
+					}			
+				else
+		 			slaNames.forEach((t, u) -> {
+						insertMetrics(u, mets, metrics, references);
+						insertRequirements(u, reqs, requirements, 'R');
+					});
+						
+			}
+						
+			references.forEach((t, u) -> {
+				String []parts = u.split("[^a-z_]+");
+				RequestMetric m = metrics.get(slaNames.get(parts[1]) + "_" + parts[2].toUpperCase());
+				metrics.put(t, m);
+			});
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+
 //	Map<String, InMemorySLAAttributes> slaAttributes = new HashMap<String, InMemorySLAAttributes>();
 
 
@@ -184,6 +320,11 @@ public class SLAPostController {
      * @return the URI of the new SLA.
      */
 //    @PostMapping("/create/sla")
+
+    public String createSLA() {
+    	//Currently, the SLA's name is automatically generated by counting how many SLAs exist and giving it that number. I.e, if there are 3 SLAs,the first 3 they'd be named SLA_0 ... SLA_2, and the new one SLA_3
+		String SLANAME = "neb:SLA_" + ontology.countInstances("SLA");;
+
     public String createSLA(String id) {
     	//Currently, the SLA's name is automatically generated by counting how many SLAs exist and giving it that number. I.e, if there are 3 SLAs,the first 3 they'd be named SLA_0 ... SLA_2, and the new one SLA_3
 		final String SLANAME = "neb:SLA_" + id;
@@ -237,7 +378,8 @@ public class SLAPostController {
 		ontology.createObjectProperty("owlq:firstArgument", "neb:" + sloName, "neb:" + slaName + "_" + slo.getFirstArgument()); //Connect it with its Metric
 		
 		//Add second argument and operator.
-		ontology.createDataProperty("odrl:rightOperand", "neb:" + sloName, slo.getSecondArgument());		
+		ontology.createDataProperty("owlq:secondArgument", "neb:" + sloName, slo.getSecondArgument());		
+
 		ontology.createObjectProperty("owlq:operator", "neb:" + sloName, "owlq:" + slo.getOperator().toString());
 		
 		//Connect to SL.
@@ -321,6 +463,7 @@ public class SLAPostController {
     		return null;
     	}
     	System.out.println(m.getClass());
+
     	String metricName = metric.getSlaName() + "_" + m.getName();
 		ontology.createIndividual(metricName, "odrl:AssetCollection");
 
@@ -575,6 +718,7 @@ public class SLAPostController {
     	System.out.println(sla.getSls());
     	
     	
+
     	final String slaName = this.createSLA(sla.getSlaName());
 
     	sla.getMetrics().forEach(metric -> {
@@ -748,6 +892,69 @@ public class SLAPostController {
 //    		createCompleteSla(sla);
 //    	}
 //    }
+
+    @PostMapping("append/violation")
+    public void addViolation(@RequestBody String slaName) {
+    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
+    	long currentTime = System.currentTimeMillis();
+    	int activeViolations = 0;
+    	
+//    	System.out.println("Begin");
+//    	slaAttributes.forEach((t, u) -> System.out.println(t + " " + u));
+//    	System.out.println("End");
+
+    	InMemorySLAAttributes attr = slaAttributes.get(slaName);
+    	System.out.println(slaName + "_SL_" + attr.getActiveSL());
+    	List<String> activeTransition = ontology.getInstances(encode("firstSL value " + slaName + "_SL_" + attr.getActiveSL()));
+    	List<String> activeSettlement = ontology.getInstances(encode("concernedSL value " + slaName + "_SL_" + attr.getActiveSL()));
+    	String active;
+    	if(activeTransition == null || activeTransition.size() == 0) {
+    		active = activeSettlement.get(0);;
+    	}else
+    		active = activeTransition.get(0);;
+    	
+    	System.out.println(active);
+    	attr.appendViolation(currentTime);
+    	 
+    	for(int i =0; i< attr.getViolationTimeStamp().size(); i++) {
+    		if(currentTime - attr.getViolationTimeStamp().get(i) <= hour) 
+    			activeViolations++;
+    	}
+    	
+    	int violationThreshold  = (int) ontology.getDataProperty(active, "owlq:violationThreshold").get(0);
+    	
+    	if(activeViolations >= violationThreshold) {
+    		System.out.println("Violated (" + activeViolations + ")");
+    		String s = ontology.getInstances("inverse secondSL value " + active).get(0).split("_")[3];
+    		attr.setActiveSL(s);
+    		attr.setViolationTimeStamp(new ArrayList<Long>());
+    		
+    		System.out.println("Switching to SL_" + attr.getActiveSL());
+    	}
+    	else
+    		System.out.println("Not violated (" + activeViolations + ")");
+    	
+    	System.out.println(attr);
+    }
+
+    private void insertMetrics(String slaName, List<Map<String, Object>> mets,  Map<String, RequestMetric> metrics, Map<String, String> references) {
+    	if(mets != null)
+			for(Map<String, Object> metr : mets) {
+				Metric metric = constructMetric(metr, references);
+				
+				if(metric != null) 
+					metrics.put(slaName + "_" + metric.getName().toUpperCase(), new RequestMetric(metric, slaName));
+			}
+    }
+    
+    private void insertRequirements(String slaName, List<Map<String, Object>> reqs,  Map<String, RequestSLO> requirements, char type) {
+		if(reqs != null)
+			for(Map<String, Object> req : reqs) {
+				RequestSLO slo = constructSLO(req, slaName, type);
+				requirements.put(slaName + "_" + slo.getSloName().toUpperCase(), slo);
+				
+			}
+    }
 //    @PostMapping("append/violation")
 //    public void addViolation(@RequestBody String slaName) {
 //    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
