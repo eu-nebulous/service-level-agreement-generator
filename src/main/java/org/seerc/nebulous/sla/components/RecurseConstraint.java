@@ -41,7 +41,7 @@ public class RecurseConstraint {
 				ontology.createObjectProperty("owlq:compensation", constraintName + "_PN", constraintName + "_PN_C");
 				ontology.createObjectProperty("odrl:partOf", constraintName + "_PN_C", constraintName);
 		
-				ontology.createDataProperty("owlq:settlementPricePercentage", constraintName + "_PN_C", Double.toString(constr.getSettlementPricePercentage()), "xsd:decimal");
+				ontology.createDataProperty("owlq:settlementPricePercentage", constraintName + "_PN_C", Double.toString(constr.getSettlementPricePercentage()), "xsd:double");
 			}
 		}else {
 			ComplexConstraint constr = (ComplexConstraint) constraint;

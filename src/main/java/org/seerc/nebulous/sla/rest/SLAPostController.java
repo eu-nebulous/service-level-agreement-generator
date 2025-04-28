@@ -198,94 +198,94 @@ public class SLAPostController {
      * @return the URI of the new SLO.
      */
 //    @PostMapping("/create/slo")	
-    public String createSLO(@RequestBody RequestSLO slo){
-    	final String slaName = slo.getSlaName().split(":")[1];
-		if(ontology.countInstances(encode("{" + slaName + "}")) != 1)
-			return null;
-		
-		String sloName = slaName + "_SLO_";
-		//The name of the SLO is determined by how many SLOs its SLA has.
-		int i = 0;
-		while(ontology.countInstances(encode("{" + sloName + i + "}")) != 0)
-			i++;
-		
-		sloName += i;
-		ontology.createIndividual("neb:" + sloName, "owlq:SLO"); //Create the SLO
-		ontology.createIndividual("neb:" + sloName, "odrl:Asset"); //Create the SLO
-		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slaName); //Connect it with its Metric
-
-		
-		ontology.createObjectProperty("owlq:firstArgument", "neb:" + sloName, "neb:" + slaName + "_" + slo.getFirstArgument()); //Connect it with its Metric
-		
-		//Add second argument and operator.
-		ontology.createDataProperty("odrl:rightOperand", "neb:" + sloName, slo.getSecondArgument().toString(), getDatatype(slo.getSecondArgument().toString()));		
-		ontology.createObjectProperty("owlq:operator", "neb:" + sloName, "owlq:" + slo.getOperator().toString());
-		
-		//Connect to SL.
-		ontology.createObjectProperty("owlq:constraint", slo.getSlName(), "neb:" + sloName);
-		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slo.getSlName());
-
-		
-//		System.out.println("SL NAME: " + slo.getSlName());
-//		if(slo.getSloType() == 'R' && slo.getTransition() != null) {
-//			final String slTransName = "neb:SL_TRANSITION_" + sloName;
-//			ontology.createIndividual(slTransName, "owlq:SLTransition");
-//			ontology.createObjectProperty("owlq:SLTransition", sloName, slTransName);
-//			
-//			ontology.createObjectProperty("owlq:firstSL", slTransName, slo.getSlName());
-//			ontology.createObjectProperty("owlq:secondSL", slTransName, slo.getTransition().getSl());
-//			
-//			ontology.createDataProperty("owlq:violationThreshold", slTransName, slo.getTransition().getViolationThreshold());
-//			ontology.createDataProperty("owlq:evaluationPeriod", slTransName, slo.getTransition().getEvaluationPeriod());
-//		}else if(slo.getSloType() == 'D') {
-//			
-//			ontology.createIndividual("neb:" + sloName + "_PENALTY", "owlq:Penalty");
-//			ontology.createObjectProperty("owlq:sloSettlement", sloName, "neb:" + sloName + "_PENALTY");
-//			
-//			ontology.createIndividual("neb:" + sloName + "_COMPENSATION", "owlq:SLOCompensation");
-//			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_COMPENSATION", slo.getSettlementPricePercentage());
-//			ontology.createObjectProperty("owlq:compensation", sloName, "neb:" + sloName + "_COMPENSATION");
+//    public String createSLO(@RequestBody RequestSLO slo){
+//    	final String slaName = slo.getSlaName().split(":")[1];
+//		if(ontology.countInstances(encode("{" + slaName + "}")) != 1)
+//			return null;
+//		
+//		String sloName = slaName + "_SLO_";
+//		//The name of the SLO is determined by how many SLOs its SLA has.
+//		int i = 0;
+//		while(ontology.countInstances(encode("{" + sloName + i + "}")) != 0)
+//			i++;
+//		
+//		sloName += i;
+//		ontology.createIndividual("neb:" + sloName, "owlq:SLO"); //Create the SLO
+//		ontology.createIndividual("neb:" + sloName, "odrl:Asset"); //Create the SLO
+//		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slaName); //Connect it with its Metric
+//
+//		
+//		ontology.createObjectProperty("owlq:firstArgument", "neb:" + sloName, "neb:" + slaName + "_" + slo.getFirstArgument()); //Connect it with its Metric
+//		
+//		//Add second argument and operator.
+//		ontology.createDataProperty("odrl:rightOperand", "neb:" + sloName, slo.getSecondArgument().toString(), getDatatype(slo.getSecondArgument().toString()));		
+//		ontology.createObjectProperty("owlq:operator", "neb:" + sloName, "owlq:" + slo.getOperator().toString());
+//		
+//		//Connect to SL.
+//		ontology.createObjectProperty("owlq:constraint", slo.getSlName(), "neb:" + sloName);
+//		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slo.getSlName());
+//
+//		
+////		System.out.println("SL NAME: " + slo.getSlName());
+////		if(slo.getSloType() == 'R' && slo.getTransition() != null) {
+////			final String slTransName = "neb:SL_TRANSITION_" + sloName;
+////			ontology.createIndividual(slTransName, "owlq:SLTransition");
+////			ontology.createObjectProperty("owlq:SLTransition", sloName, slTransName);
+////			
+////			ontology.createObjectProperty("owlq:firstSL", slTransName, slo.getSlName());
+////			ontology.createObjectProperty("owlq:secondSL", slTransName, slo.getTransition().getSl());
+////			
+////			ontology.createDataProperty("owlq:violationThreshold", slTransName, slo.getTransition().getViolationThreshold());
+////			ontology.createDataProperty("owlq:evaluationPeriod", slTransName, slo.getTransition().getEvaluationPeriod());
+////		}else if(slo.getSloType() == 'D') {
+////			
+////			ontology.createIndividual("neb:" + sloName + "_PENALTY", "owlq:Penalty");
+////			ontology.createObjectProperty("owlq:sloSettlement", sloName, "neb:" + sloName + "_PENALTY");
+////			
+////			ontology.createIndividual("neb:" + sloName + "_COMPENSATION", "owlq:SLOCompensation");
+////			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_COMPENSATION", slo.getSettlementPricePercentage());
+////			ontology.createObjectProperty("owlq:compensation", sloName, "neb:" + sloName + "_COMPENSATION");
+////		}
+//		//Add soft/negotiable.
+////		ontology.createDataProperty("owlq:soft", sloName, slo.isSoft());
+////		ontology.createDataProperty("owlq:negotiable", sloName, slo.isNegotiable());
+//		
+//		//Add penalty
+//		
+//		if(slo.getSettlementPricePercentage() >= 0d ) {
+//			ontology.createIndividual("neb:" + sloName + "_PN", "owlq:Penalty");
+//			ontology.createIndividual("neb:" + sloName + "_PN", "odrl:Asset"); 	
+//	
+//			ontology.createObjectProperty("owlq:penalty", "neb:" + sloName, "neb:" + sloName + "_PN");
+//			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN", "neb:" + sloName);
+//	
+//			ontology.createIndividual("neb:" + sloName + "_PN_C", "owlq:SLOCompensation");
+//			ontology.createIndividual("neb:" + sloName + "_PN_C", "odrl:Asset");
+//	
+//			ontology.createObjectProperty("owlq:compensation", "neb:" + sloName + "_PN", "neb:" + sloName + "_PN_C");
+//			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN_C", "neb:" + sloName);
+//	
+//			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_PN_C", Double.toString(slo.getSettlementPricePercentage()), "xsd:double");
 //		}
-		//Add soft/negotiable.
-//		ontology.createDataProperty("owlq:soft", sloName, slo.isSoft());
-//		ontology.createDataProperty("owlq:negotiable", sloName, slo.isNegotiable());
-		
-		//Add penalty
-		
-		if(slo.getSettlementPricePercentage() >= 0d ) {
-			ontology.createIndividual("neb:" + sloName + "_PN", "owlq:Penalty");
-			ontology.createIndividual("neb:" + sloName + "_PN", "odrl:Asset"); 	
-	
-			ontology.createObjectProperty("owlq:penalty", "neb:" + sloName, "neb:" + sloName + "_PN");
-			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN", "neb:" + sloName);
-	
-			ontology.createIndividual("neb:" + sloName + "_PN_C", "owlq:SLOCompensation");
-			ontology.createIndividual("neb:" + sloName + "_PN_C", "odrl:Asset");
-	
-			ontology.createObjectProperty("owlq:compensation", "neb:" + sloName + "_PN", "neb:" + sloName + "_PN_C");
-			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN_C", "neb:" + sloName);
-	
-			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_PN_C", Double.toString(slo.getSettlementPricePercentage()), "xsd:decimal");
-		}
-	
-//		System.out.println("constraint made: neb:" + slaName + "_SL" + " ||| " +  sloName );
-//		if(slo.getQualifyingCondition() == null) 
-//			return sloName;
+//	
+////		System.out.println("constraint made: neb:" + slaName + "_SL" + " ||| " +  sloName );
+////		if(slo.getQualifyingCondition() == null) 
+////			return sloName;
+////		
+////		SimpleConstraint qc = slo.getQualifyingCondition();
+////		//If QC exists, add create the class.
+////		ontology.createIndividual(sloName + "_QC", "owlq:QualifyingCondition");
+////		
+////		ontology.createIndividual("neb:" + qc.getFirstArgument(), "owlq:Metric");
+////		ontology.createObjectProperty("owlq:firstArgument", sloName + "_QC", "neb:" + qc.getFirstArgument());
+////		
+////		ontology.createDataProperty("owlq:secondArgument", sloName + "_QC", qc.getSecondArgument());
+////		ontology.createObjectProperty("owlq:operator", sloName + "_QC", qc.getOperator().toString());
+////		
+////		ontology.createObjectProperty("owlq:qualifyingCondition", sloName, sloName + "_QC");
 //		
-//		SimpleConstraint qc = slo.getQualifyingCondition();
-//		//If QC exists, add create the class.
-//		ontology.createIndividual(sloName + "_QC", "owlq:QualifyingCondition");
-//		
-//		ontology.createIndividual("neb:" + qc.getFirstArgument(), "owlq:Metric");
-//		ontology.createObjectProperty("owlq:firstArgument", sloName + "_QC", "neb:" + qc.getFirstArgument());
-//		
-//		ontology.createDataProperty("owlq:secondArgument", sloName + "_QC", qc.getSecondArgument());
-//		ontology.createObjectProperty("owlq:operator", sloName + "_QC", qc.getOperator().toString());
-//		
-//		ontology.createObjectProperty("owlq:qualifyingCondition", sloName, sloName + "_QC");
-		
-		return sloName;
-    }   
+//		return sloName;
+//    }   
     /**
      * Creates a new Metric.
      * @param rsl THE SL.
