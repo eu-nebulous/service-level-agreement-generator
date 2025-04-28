@@ -12,5 +12,5 @@ jobs:
     uses: eu-nebulous/github-actions/.github/workflows/build-and-push-container-image.yml@main
     with:
       context: .
-      image-name: sla-generator
+      image-name: service-level-agreement-generator
     secrets: inherit
