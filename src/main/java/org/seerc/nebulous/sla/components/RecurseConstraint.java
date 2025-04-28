@@ -26,6 +26,7 @@ public class RecurseConstraint {
 			ontology.createObjectProperty("owlq:firstArgument", constraintName, slaName +  "_" + constr.getFirstArgument());
 			ontology.createObjectProperty("owlq:operator", constraintName, "owlq:" + constr.getOperator().toString());
 			ontology.createDataProperty("owlq:secondArgument", constraintName, constr.getSecondArgument());
+
 			
 			System.out.println(constraintName);
 			if(constr.getSettlementPricePercentage() >= 0d ) {
