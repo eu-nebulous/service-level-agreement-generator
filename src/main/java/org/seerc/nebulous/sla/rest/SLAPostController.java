@@ -1,27 +1,28 @@
 package org.seerc.nebulous.sla.rest;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import org.seerc.nebulous.sla.components.ComparisonOperator;
+import org.seerc.nebulous.sla.components.SLA;
+import org.seerc.nebulous.sla.components.CompositeMetric;
+import org.seerc.nebulous.sla.components.Constraint;
+import org.seerc.nebulous.sla.components.Metric;
+
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.io.File;
 
 import org.seerc.nebulous.fileParsers.KubevelaParser;
 import org.seerc.nebulous.fileParsers.MetricModelParser;
-import org.seerc.nebulous.sla.components.ComparisonOperator;
-import org.seerc.nebulous.sla.components.SLA;
 import org.seerc.nebulous.sla.components.SLO;
-import org.seerc.nebulous.sla.components.CompositeMetric;
-import org.seerc.nebulous.sla.components.Constraint;
 import org.seerc.nebulous.sla.components.DeviceSLA;
 import org.seerc.nebulous.sla.components.GeoLocation;
 import org.seerc.nebulous.sla.components.InMemorySLAAttributes;
-import org.seerc.nebulous.sla.components.Metric;
 import org.seerc.nebulous.sla.components.NodeProperties;
 import org.seerc.nebulous.sla.components.OperatingSystem;
 import org.seerc.nebulous.sla.components.RawMetric;
@@ -35,7 +36,6 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @RestController
 public class SLAPostController {
@@ -178,7 +178,6 @@ public class SLAPostController {
 //		}
 //	}
 	
-
 //	Map<String, InMemorySLAAttributes> slaAttributes = new HashMap<String, InMemorySLAAttributes>();
 
 
@@ -948,7 +947,9 @@ public class SLAPostController {
 				requirements.put(slaName + "_" + slo.getSloName().toUpperCase(), slo);
 				
 			}
-		}
+    }
+
+
 //    @PostMapping("append/violation")
 //    public void addViolation(@RequestBody String slaName) {
 //    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
