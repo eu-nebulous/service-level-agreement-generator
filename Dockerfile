@@ -10,6 +10,10 @@ RUN mvn package -Dmaven.test.skip
 WORKDIR /sla-generator/target
 
 
+<<<<<<< HEAD
 CMD ["java", "-jar", "nebulous-sla-0.0.1-SNAPSHOT.jar", "http://localhost:80"]
+=======
+CMD ["java", "-jar", "nebulous-ont-0.0.1-SNAPSHOT.jar", "http://localhost:80"]
+>>>>>>> ae698270f3186ce0c2da645eac5ed0f90b8ed4b6
 
 EXPOSE 8081
