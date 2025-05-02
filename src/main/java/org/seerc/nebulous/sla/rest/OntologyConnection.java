@@ -1,6 +1,8 @@
 package org.seerc.nebulous.sla.rest;
 
 import java.net.URI;
+import java.time.Instant;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,11 +65,12 @@ public class OntologyConnection{
 			    .retrieve().bodyToMono(String.class).block();
 	}
 	
-	public String createDataProperty(String dataPropertyURI, String domainURI, Object value) {
+	public String createDataProperty(String dataPropertyURI, String domainURI, String value, String type) {
 		return client.post().uri("/create/dataProperty")
 				.accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(new CreateDataPropertyPostBody(dataPropertyURI, domainURI, value)))
+				.body(BodyInserters.fromValue(new CreateDataPropertyPostBody(dataPropertyURI, domainURI, value, type)))
+
 			    .retrieve().bodyToMono(String.class).block();
 	}
 	
@@ -95,8 +98,20 @@ public class OntologyConnection{
 	public List<String> getSuperclasses(String dlQuery, boolean direct){
 		return Arrays.asList(client.get().uri("/get/superclasses?dlQuery=" + dlQuery + "&direct=" + direct)
 			.accept(MediaType.APPLICATION_JSON)
-			.retrieve().bodyToMono(String[].class).block());
-		
-		}
+			.retrieve().bodyToMono(String[].class).block());	
+	}
+	public String registerAsset(String assetName) {
+		return client.post().uri("/register/asset")
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromValue(new RegisterAssetBodyInserter(assetName, Instant.now().getEpochSecond())))
+			    .retrieve().bodyToMono(String.class).block();
+	}
+	public int countAssets(){
+		return Arrays.asList(client.get().uri("/count/assets")
+			.accept(MediaType.APPLICATION_JSON)
+			.retrieve().bodyToMono(Integer.class).block()).get(0);	
+	}
+
 	
 }

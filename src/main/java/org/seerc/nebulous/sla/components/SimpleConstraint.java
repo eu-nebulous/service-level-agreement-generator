@@ -40,6 +40,18 @@ public class SimpleConstraint implements Constraint{
 		return "SimpleConstraint [firstArgument = " + firstArgument + ", operator = " + operator + ", secondArgument = "
 				+ secondArgument + "]";
 	}
-	
-	
+	protected String getDatatype(){
+		String literalValue = secondArgument.toString();
+		String result = "xsd:string";
+		
+		if(literalValue.matches("(\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)"))
+			result =  "xsd:decimal";
+		if(literalValue.matches("-?P((([0-9]+Y([0-9]+M)?([0-9]+D)?|([0-9]+M)([0-9]+D)?|([0-9]+D))(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S)))?)|(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S))))"))
+			result = "xsd:duration";
+		else 
+			result = "xsd:string";
+		
+		return result;
+	}	
+
 }

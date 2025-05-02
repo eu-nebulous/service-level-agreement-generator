@@ -2,37 +2,21 @@ package org.seerc.nebulous.sla.rest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
+
 import org.seerc.nebulous.sla.components.ComparisonOperator;
-import org.seerc.nebulous.sla.components.SLA;
 import org.seerc.nebulous.sla.components.CompositeMetric;
 import org.seerc.nebulous.sla.components.Constraint;
 import org.seerc.nebulous.sla.components.Metric;
-
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.io.File;
-
-import org.seerc.nebulous.fileParsers.KubevelaParser;
-import org.seerc.nebulous.fileParsers.MetricModelParser;
-import org.seerc.nebulous.sla.components.SLO;
-import org.seerc.nebulous.sla.components.DeviceSLA;
-import org.seerc.nebulous.sla.components.GeoLocation;
-import org.seerc.nebulous.sla.components.InMemorySLAAttributes;
-import org.seerc.nebulous.sla.components.NodeProperties;
-import org.seerc.nebulous.sla.components.OperatingSystem;
 import org.seerc.nebulous.sla.components.RawMetric;
 import org.seerc.nebulous.sla.components.RecurseConstraint;
 import org.seerc.nebulous.sla.components.SL;
-
+import org.seerc.nebulous.sla.components.SLA;
 import org.seerc.nebulous.sla.components.SLTransition;
 import org.seerc.nebulous.sla.components.Sensor;
 import org.seerc.nebulous.sla.components.WindowOutput;
-import org.springframework.context.annotation.PropertySource;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,143 +28,6 @@ public class SLAPostController {
 //	private SALConnection sal = SALConnection.getInstance();
 //	private ActiveMQConnection cluster = ActiveMQConnection.getInstance();
 	
-
-
-//
-//	@PostMapping("create/models")
-//	public void parseModels() {
-//		
-//		Map<String, String> slaNames = new HashMap<String, String>();
-//		
-//		Map<String, RequestMetric> metrics = new HashMap<String, RequestMetric>();
-//		Map<String, RequestSLO> requirements = new HashMap<String, RequestSLO>();
-//		
-////		parseMetricModel(slaNames, metrics, requirements);
-//		parseKubevela(slaNames, requirements);
-//		
-//		//Inserting into ontology
-//		for(Map.Entry<String, RequestMetric> entry: metrics.entrySet()) 
-//			createMetric(entry.getValue());
-//		
-//		for(Map.Entry<String, RequestSLO> entry: requirements.entrySet())
-//			createSLO(entry.getValue());
-//	}
-//	
-//	@PostMapping("create/kubevela")
-//	public void parseKubevela(Map<String, String> slaNames, Map<String, RequestSLO> requirements ) {
-//		try {
-//			KubevelaParser kubevela = new KubevelaParser((new FileInputStream(new File("KubeVela_v2.yaml"))));
-//			
-//			for(int i = 0; i <  kubevela.getComponents().size(); i++) {
-//				Map<String, Map<String, String>> resources = kubevela.getResources(i);
-//				
-//				if(resources == null || resources.size() == 0)
-//					continue;
-//				
-//				String slaName = slaNames.get(kubevela.getComponentName(i));
-//	
-//				RequestSLO maxCpu = new RequestSLO();
-////				System.out.println(resources);
-//				maxCpu.setFirstArgument("neb:MAX_CPU_CORES");
-//				maxCpu.setOperator(ComparisonOperator.LESS_EQUAL_THAN);
-//				maxCpu.setSecondArgument(resources.get("limits").get("cpu"));
-//				maxCpu.setSlaName(slaName);
-////				maxCpu.setSloType('D');
-//				
-//				RequestSLO maxRam= new RequestSLO();
-//				
-//				maxRam.setFirstArgument("neb:MAX_RAM");
-//				maxRam.setOperator(ComparisonOperator.LESS_EQUAL_THAN);
-//				maxRam.setSecondArgument(resources.get("limits").get("memory"));
-//				maxRam.setSlaName(slaName);
-////				maxRam.setSloType('D');
-//
-//				
-//				RequestSLO requestedCpu = new RequestSLO();
-//				
-//				requestedCpu.setFirstArgument("neb:REQUESTED_CPU_CORES");
-//				requestedCpu.setOperator(ComparisonOperator.EQUALS);
-//				requestedCpu.setSecondArgument(resources.get("requests").get("cpu"));
-//				requestedCpu.setSlaName(slaName);
-////				requestedCpu.setSloType('D');
-//
-//				RequestSLO requestRam = new RequestSLO();
-//				
-//				requestRam.setFirstArgument("neb:REQUESTED_RAM");
-//				requestRam.setOperator(ComparisonOperator.EQUALS);
-//				requestRam.setSecondArgument(resources.get("requests").get("memory"));
-//				requestRam.setSlaName(slaName);
-////				requestRam.setSloType('D');
-//
-//				requirements.put(slaName + "_MAX_CPU_CORES", maxCpu);
-//				requirements.put(slaName + "_MAX_RAM", maxRam);
-//				requirements.put(slaName + "_REQUESTED_CPU_CORES", requestedCpu);
-//				requirements.put(slaName + "_REQUESTED_RAM", requestRam);
-//
-//			}
-//					
-//		} catch (FileNotFoundException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-	
-//	@PostMapping("create/metricModel")
-//	public void parseMetricModel(Map<String, String> slaNames, Map<String, RequestMetric> metrics, Map<String, RequestSLO> requirements) {
-//		try {
-//			MetricModelParser metricModel = new MetricModelParser((new FileInputStream(new File("augmenta_metric_model_draft_v4.yml"))));
-//			Map<String, String> references = new HashMap<String, String>();
-//
-//			for(int i = 0; i < metricModel.getComponents().size(); i++) {
-//				
-//				String slaName = createSLA();
-//				slaNames.put((String) metricModel.getComponent(i).get("name"), slaName);
-//				
-//				List<Map<String, Object>> reqs = metricModel.getComponentRequirements(i);
-//				List<Map<String, Object>> mets = metricModel.getComponentMetrics(i);
-//				
-//				insertMetrics(slaName, mets, metrics, references);
-//				insertRequirements(slaName, reqs, requirements, 'R');
-//			} 
-//			
-//			//scopes
-//			for(Object sc : metricModel.getScopes()) {
-//				Map<String, Object> scope = (Map<String, Object>) sc;
-//				
-//				List<String> components = (List<String>) scope.get("components");
-//				
-//				List<Map<String, Object>> mets = (List<Map<String, Object>>) scope.get("metrics");
-//				List<Map<String, Object>> reqs = (List<Map<String, Object>>) scope.get("requirements");
-//				if(components != null)
-//					for(String comp : components) {
-//		 				
-//						String slaName = slaNames.get(comp);
-//												
-//						insertMetrics(slaName, mets, metrics, references);
-//						insertRequirements(slaName, reqs, requirements, 'R');
-//					}			
-//				else
-//		 			slaNames.forEach((t, u) -> {
-//						insertMetrics(u, mets, metrics, references);
-//						insertRequirements(u, reqs, requirements, 'R');
-//					});
-//						
-//			}
-//						
-//			references.forEach((t, u) -> {
-//				String []parts = u.split("[^a-z_]+");
-//				RequestMetric m = metrics.get(slaNames.get(parts[1]) + "_" + parts[2].toUpperCase());
-//				metrics.put(t, m);
-//			});
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-//	Map<String, InMemorySLAAttributes> slaAttributes = new HashMap<String, InMemorySLAAttributes>();
-
-
 //	@PostMapping("create/models")
 //	public void parseModels() {
 //		
@@ -316,14 +163,16 @@ public class SLAPostController {
      * Creates a new SLA.
      * @return the URI of the new SLA.
      */
-
+//    @PostMapping("/create/sla")
     public String createSLA(String id) {
-    	//Currently, the SLA's name is automatically generated by counting how many SLAs exist and giving it that number. I.e, if there are 3 SLAs,the first 3 they'd be named SLA_0 ... SLA_2, and the new one SLA_3
+    	
 		final String SLANAME = "neb:SLA_" + id;
-		System.out.println(SLANAME);
+		
+//		ontology.registerAsset(SLANAME);
+
 		ontology.createIndividual(SLANAME, "owlq:SLA");
 		ontology.createIndividual(SLANAME, "odrl:AssetCollection");
-			
+
 		return SLANAME;
     }
     
@@ -337,7 +186,8 @@ public class SLAPostController {
     	//The name of the SL is determined by the parameter
     	String slName = rsl.getSlaName() + "_SL_" + rsl.getSlName();
 		ontology.createIndividual(slName, "owlq:SL"); //Create the SL
-		ontology.createIndividual(slName, "owlq:AssetCollection"); //Create the SL
+		ontology.createIndividual(slName, "odrl:AssetCollection"); //Create the SL
+
 		ontology.createObjectProperty("owlq:serviceLevel", rsl.getSlaName(), slName);	 //Connect it to the SLA	
 		ontology.createObjectProperty("odrl:partOf", slName,  rsl.getSlaName());	 //Connect it to the SLA		
 		ontology.createObjectProperty("owlq:logicalOperator", slName, "owlq:" + rsl.getOperator());
@@ -350,95 +200,95 @@ public class SLAPostController {
      * @return the URI of the new SLO.
      */
 //    @PostMapping("/create/slo")	
-    public String createSLO(@RequestBody RequestSLO slo){
-    	final String slaName = slo.getSlaName().split(":")[1];
-		if(ontology.countInstances(encode("{" + slaName + "}")) != 1)
-			return null;
-		
-		String sloName = slaName + "_SLO_";
-		//The name of the SLO is determined by how many SLOs its SLA has.
-		int i = 0;
-		while(ontology.countInstances(encode("{" + sloName + i + "}")) != 0)
-			i++;
-		
-		sloName += i;
-		ontology.createIndividual("neb:" + sloName, "owlq:SLO"); //Create the SLO
-		ontology.createIndividual("neb:" + sloName, "odrl:Asset"); //Create the SLO
-		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slaName); //Connect it with its Metric
-
-		
-		ontology.createObjectProperty("owlq:firstArgument", "neb:" + sloName, "neb:" + slaName + "_" + slo.getFirstArgument()); //Connect it with its Metric
-		
-		//Add second argument and operator.
-		ontology.createDataProperty("owlq:secondArgument", "neb:" + sloName, slo.getSecondArgument());		
-
-		ontology.createObjectProperty("owlq:operator", "neb:" + sloName, "owlq:" + slo.getOperator().toString());
-		
-		//Connect to SL.
-		ontology.createObjectProperty("owlq:constraint", slo.getSlName(), "neb:" + sloName);
-		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slo.getSlName());
-
-		
-//		System.out.println("SL NAME: " + slo.getSlName());
-//		if(slo.getSloType() == 'R' && slo.getTransition() != null) {
-//			final String slTransName = "neb:SL_TRANSITION_" + sloName;
-//			ontology.createIndividual(slTransName, "owlq:SLTransition");
-//			ontology.createObjectProperty("owlq:SLTransition", sloName, slTransName);
-//			
-//			ontology.createObjectProperty("owlq:firstSL", slTransName, slo.getSlName());
-//			ontology.createObjectProperty("owlq:secondSL", slTransName, slo.getTransition().getSl());
-//			
-//			ontology.createDataProperty("owlq:violationThreshold", slTransName, slo.getTransition().getViolationThreshold());
-//			ontology.createDataProperty("owlq:evaluationPeriod", slTransName, slo.getTransition().getEvaluationPeriod());
-//		}else if(slo.getSloType() == 'D') {
-//			
-//			ontology.createIndividual("neb:" + sloName + "_PENALTY", "owlq:Penalty");
-//			ontology.createObjectProperty("owlq:sloSettlement", sloName, "neb:" + sloName + "_PENALTY");
-//			
-//			ontology.createIndividual("neb:" + sloName + "_COMPENSATION", "owlq:SLOCompensation");
-//			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_COMPENSATION", slo.getSettlementPricePercentage());
-//			ontology.createObjectProperty("owlq:compensation", sloName, "neb:" + sloName + "_COMPENSATION");
+//    public String createSLO(@RequestBody RequestSLO slo){
+//    	final String slaName = slo.getSlaName().split(":")[1];
+//		if(ontology.countInstances(encode("{" + slaName + "}")) != 1)
+//			return null;
+//		
+//		String sloName = slaName + "_SLO_";
+//		//The name of the SLO is determined by how many SLOs its SLA has.
+//		int i = 0;
+//		while(ontology.countInstances(encode("{" + sloName + i + "}")) != 0)
+//			i++;
+//		
+//		sloName += i;
+//		ontology.createIndividual("neb:" + sloName, "owlq:SLO"); //Create the SLO
+//		ontology.createIndividual("neb:" + sloName, "odrl:Asset"); //Create the SLO
+//		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slaName); //Connect it with its Metric
+//
+//		
+//		ontology.createObjectProperty("owlq:firstArgument", "neb:" + sloName, "neb:" + slaName + "_" + slo.getFirstArgument()); //Connect it with its Metric
+//		
+//		//Add second argument and operator.
+//		ontology.createDataProperty("odrl:rightOperand", "neb:" + sloName, slo.getSecondArgument().toString(), getDatatype(slo.getSecondArgument().toString()));		
+//		ontology.createObjectProperty("owlq:operator", "neb:" + sloName, "owlq:" + slo.getOperator().toString());
+//		
+//		//Connect to SL.
+//		ontology.createObjectProperty("owlq:constraint", slo.getSlName(), "neb:" + sloName);
+//		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slo.getSlName());
+//
+//		
+////		System.out.println("SL NAME: " + slo.getSlName());
+////		if(slo.getSloType() == 'R' && slo.getTransition() != null) {
+////			final String slTransName = "neb:SL_TRANSITION_" + sloName;
+////			ontology.createIndividual(slTransName, "owlq:SLTransition");
+////			ontology.createObjectProperty("owlq:SLTransition", sloName, slTransName);
+////			
+////			ontology.createObjectProperty("owlq:firstSL", slTransName, slo.getSlName());
+////			ontology.createObjectProperty("owlq:secondSL", slTransName, slo.getTransition().getSl());
+////			
+////			ontology.createDataProperty("owlq:violationThreshold", slTransName, slo.getTransition().getViolationThreshold());
+////			ontology.createDataProperty("owlq:evaluationPeriod", slTransName, slo.getTransition().getEvaluationPeriod());
+////		}else if(slo.getSloType() == 'D') {
+////			
+////			ontology.createIndividual("neb:" + sloName + "_PENALTY", "owlq:Penalty");
+////			ontology.createObjectProperty("owlq:sloSettlement", sloName, "neb:" + sloName + "_PENALTY");
+////			
+////			ontology.createIndividual("neb:" + sloName + "_COMPENSATION", "owlq:SLOCompensation");
+////			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_COMPENSATION", slo.getSettlementPricePercentage());
+////			ontology.createObjectProperty("owlq:compensation", sloName, "neb:" + sloName + "_COMPENSATION");
+////		}
+//		//Add soft/negotiable.
+////		ontology.createDataProperty("owlq:soft", sloName, slo.isSoft());
+////		ontology.createDataProperty("owlq:negotiable", sloName, slo.isNegotiable());
+//		
+//		//Add penalty
+//		
+//		if(slo.getSettlementPricePercentage() >= 0d ) {
+//			ontology.createIndividual("neb:" + sloName + "_PN", "owlq:Penalty");
+//			ontology.createIndividual("neb:" + sloName + "_PN", "odrl:Asset"); 	
+//	
+//			ontology.createObjectProperty("owlq:penalty", "neb:" + sloName, "neb:" + sloName + "_PN");
+//			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN", "neb:" + sloName);
+//	
+//			ontology.createIndividual("neb:" + sloName + "_PN_C", "owlq:SLOCompensation");
+//			ontology.createIndividual("neb:" + sloName + "_PN_C", "odrl:Asset");
+//	
+//			ontology.createObjectProperty("owlq:compensation", "neb:" + sloName + "_PN", "neb:" + sloName + "_PN_C");
+//			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN_C", "neb:" + sloName);
+//	
+//			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_PN_C", Double.toString(slo.getSettlementPricePercentage()), "xsd:double");
 //		}
-		//Add soft/negotiable.
-//		ontology.createDataProperty("owlq:soft", sloName, slo.isSoft());
-//		ontology.createDataProperty("owlq:negotiable", sloName, slo.isNegotiable());
-		
-		//Add penalty
-		
-		if(slo.getSettlementPricePercentage() >= 0d ) {
-			ontology.createIndividual("neb:" + sloName + "_PN", "owlq:Penalty");
-			ontology.createIndividual("neb:" + sloName + "_PN", "odrl:Asset"); 	
-	
-			ontology.createObjectProperty("owlq:penalty", "neb:" + sloName, "neb:" + sloName + "_PN");
-			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN", "neb:" + sloName);
-	
-			ontology.createIndividual("neb:" + sloName + "_PN_C", "owlq:SLOCompensation");
-			ontology.createIndividual("neb:" + sloName + "_PN_C", "odrl:Asset");
-	
-			ontology.createObjectProperty("owlq:compensation", "neb:" + sloName + "_PN", "neb:" + sloName + "_PN_C");
-			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN_C", "neb:" + sloName);
-	
-			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_PN_C", slo.getSettlementPricePercentage());
-		}
-	
-//		System.out.println("constraint made: neb:" + slaName + "_SL" + " ||| " +  sloName );
-//		if(slo.getQualifyingCondition() == null) 
-//			return sloName;
+//	
+////		System.out.println("constraint made: neb:" + slaName + "_SL" + " ||| " +  sloName );
+////		if(slo.getQualifyingCondition() == null) 
+////			return sloName;
+////		
+////		SimpleConstraint qc = slo.getQualifyingCondition();
+////		//If QC exists, add create the class.
+////		ontology.createIndividual(sloName + "_QC", "owlq:QualifyingCondition");
+////		
+////		ontology.createIndividual("neb:" + qc.getFirstArgument(), "owlq:Metric");
+////		ontology.createObjectProperty("owlq:firstArgument", sloName + "_QC", "neb:" + qc.getFirstArgument());
+////		
+////		ontology.createDataProperty("owlq:secondArgument", sloName + "_QC", qc.getSecondArgument());
+////		ontology.createObjectProperty("owlq:operator", sloName + "_QC", qc.getOperator().toString());
+////		
+////		ontology.createObjectProperty("owlq:qualifyingCondition", sloName, sloName + "_QC");
 //		
-//		SimpleConstraint qc = slo.getQualifyingCondition();
-//		//If QC exists, add create the class.
-//		ontology.createIndividual(sloName + "_QC", "owlq:QualifyingCondition");
-//		
-//		ontology.createIndividual("neb:" + qc.getFirstArgument(), "owlq:Metric");
-//		ontology.createObjectProperty("owlq:firstArgument", sloName + "_QC", "neb:" + qc.getFirstArgument());
-//		
-//		ontology.createDataProperty("owlq:secondArgument", sloName + "_QC", qc.getSecondArgument());
-//		ontology.createObjectProperty("owlq:operator", sloName + "_QC", qc.getOperator().toString());
-//		
-//		ontology.createObjectProperty("owlq:qualifyingCondition", sloName, sloName + "_QC");
-		
-		return sloName;
-    }   
+//		return sloName;
+//    }   
+
     /**
      * Creates a new Metric.
      * @param rsl THE SL.
@@ -454,8 +304,6 @@ public class SLAPostController {
     	}catch(Exception e) {
     		return null;
     	}
-    	System.out.println(m.getClass());
-
     	String metricName = metric.getSlaName() + "_" + m.getName();
 		ontology.createIndividual(metricName, "odrl:AssetCollection");
 
@@ -464,22 +312,23 @@ public class SLAPostController {
     		
 			ontology.createIndividual(metricName, "owlq:CompositeMetric");
 //			System.out.println("metric name: " + metricName);
-			ontology.createDataProperty("neb:formula", metricName, ((CompositeMetric) m).getFormula());
+			ontology.createDataProperty("neb:formula", metricName, ((CompositeMetric) m).getFormula(), "rdf:PlainLiteral");
+
     	}else if(m instanceof RawMetric){
     		
     		Sensor s = ((RawMetric) m).getSensor();
     		    			
 			ontology.createIndividual(metricName, "owlq:RawMetric");
-			System.out.println("Raw metric:" + metricName);
 			
 			if(s != null) {
 			ontology.createIndividual(metricName + "_SENSOR", "owlq:Sensor");
 			
 			ontology.createObjectProperty("owlq:sensor", metricName, metricName + "_SENSOR") ;
 			if(s.getType() != null)
-				ontology.createDataProperty("neb:type", metricName + "_SENSOR", s.getType());
+				ontology.createDataProperty("neb:type", metricName + "_SENSOR", s.getType(), "xsd:string");
 			if(s.getAffinity() != null)
-				ontology.createDataProperty("neb:affinity", metricName + "_SENSOR", s.getAffinity());
+				ontology.createDataProperty("neb:affinity", metricName + "_SENSOR", s.getAffinity(), "xsd:string");
+
 			}
     	}else {
 			ontology.createIndividual(metricName, "owlq:Metric");
@@ -666,7 +515,6 @@ public class SLAPostController {
 			}
 		}
     	
-    	System.out.println(windowOutput);
     	return windowOutput;
     }
 
@@ -676,28 +524,31 @@ public class SLAPostController {
     		return;
     	
     	String woName;
+    	String typeStr;
     	
     	if(type.equals("owlq:Window")) {
     		woName = metricName + "_WINDOW";
-    		ontology.createObjectProperty("owlq:window", metricName, woName);
+    		typeStr = "owlq:window";
     	}else {
     		woName = metricName  + "_OUTPUT";
-    		ontology.createObjectProperty("neb:output", metricName, woName);
+    		typeStr = "neb:output";
+
     	}
     	
 //    	System.out.println("WO: " + wo);
      	ontology.createIndividual(woName, type);
      	ontology.createIndividual(woName, "odrl:Asset");
-		ontology.createObjectProperty("odrl:partOf", woName, metricName);
+		ontology.createObjectProperty(typeStr, metricName, woName);
+
 
 
     	 
 //    	System.out.println(woName);
-    	ontology.createDataProperty("neb:type", woName, wo.getType());
-    	ontology.createDataProperty("neb:value", woName, wo.getValue());
+    	ontology.createDataProperty("neb:type", woName, wo.getType(), "xsd:string");
+    	ontology.createDataProperty("neb:value", woName, wo.getValue().toString(), getDatatype(wo.getValue().toString()));
     	
     	
-    	if(ontology.countInstances(URLEncoder.encode("{" + wo.getUnit() + "}", StandardCharsets.UTF_8)) == 0)
+    	if(ontology.countInstances(encode("{" + wo.getUnit() + "}")) == 0)
     		ontology.createIndividual(wo.getUnit(), "owlq:Unit");
    	
     	ontology.createObjectProperty("owlq:unit", woName, wo.getUnit());
@@ -706,9 +557,6 @@ public class SLAPostController {
     
     @PostMapping("create/sla")
     public void createCompleteSla(@RequestBody SLA sla) { 	
-    	
-    	System.out.println(sla.getSls());
-    	
     	
 
     	final String slaName = this.createSLA(sla.getSlaName());
@@ -748,24 +596,27 @@ public class SLAPostController {
 	        	ontology.createObjectProperty("owlq:firstSL", slTransName, slaName + "_SL_" + trans.getFirstSl());
 	        	ontology.createObjectProperty("owlq:secondSL", slTransName, slaName + "_SL_" + trans.getSecondSl());
 	        	
-	        	ontology.createDataProperty("owlq:violationThreshold", slTransName, trans.getViolationThreshold());
-	        	ontology.createDataProperty("owlq:evaluationPeriod", slTransName, trans.getEvaluationPeriod());
+	        	ontology.createDataProperty("owlq:violationThreshold", slTransName, Integer.toString(trans.getViolationThreshold()), "xsd:integer");
+	        	ontology.createDataProperty("owlq:evaluationPeriod", slTransName, trans.getEvaluationPeriod(), "xsd:duration");
+
 	    		
 	    	}
 	    	
     	if(sla.getSettlement() != null) {
 	    	ontology.createIndividual(slaName + "_SETTLEMENT", "owlq:Settlement");
-	    	ontology.createIndividual(slaName + "_SETTLEMENT", "owlq:Asset");
+	    	ontology.createIndividual(slaName + "_SETTLEMENT", "odrl:Asset");
 	    	ontology.createObjectProperty("odrl:partOf", slaName + "_SETTLEMENT", slaName);
 	
-	    	ontology.createDataProperty("owlq:evaluationPeriod", slaName + "_SETTLEMENT", sla.getSettlement().getEvaluationPeriod());
-	    	ontology.createDataProperty("owlq:settlementCount", slaName + "_SETTLEMENT", sla.getSettlement().getSettlementCount());
-	    	ontology.createDataProperty("owlq:settlementAction", slaName + "_SETTLEMENT", sla.getSettlement().getSettlementAction());
+	    	ontology.createDataProperty("owlq:evaluationPeriod", slaName + "_SETTLEMENT", sla.getSettlement().getEvaluationPeriod().toString(), "xsd:duration");
+	    	ontology.createDataProperty("owlq:settlementCount", slaName + "_SETTLEMENT", Integer.toString(sla.getSettlement().getSettlementCount()),  "xsd:integer");
+	    	ontology.createDataProperty("owlq:settlementAction", slaName + "_SETTLEMENT", sla.getSettlement().getSettlementAction(), "xsd:string");
+
 	
 	    	
 	    	ontology.createObjectProperty("owlq:settlement", slaName, slaName + "_SETTLEMENT");
 	    	ontology.createObjectProperty("owlq:concernedSL", slaName + "_SETTLEMENT", slaName + "_SL_" + sla.getSettlement().getConcernedSL());
     	}
+
 //    	cluster.publish("slas", new ObjectMapper().convertValue(sla, new TypeReference<Map<String, Object>>() {}));
     }
     
@@ -885,6 +736,7 @@ public class SLAPostController {
 //    	}
 //    }
 
+
 //    @PostMapping("append/violation")
 //    public void addViolation(@RequestBody String slaName) {
 //    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
@@ -930,24 +782,25 @@ public class SLAPostController {
 //    }
 
 
-    private void insertMetrics(String slaName, List<Map<String, Object>> mets,  Map<String, RequestMetric> metrics, Map<String, String> references) {
-    	if(mets != null)
-			for(Map<String, Object> metr : mets) {
-				Metric metric = constructMetric(metr, references);
+//    private void insertMetrics(String slaName, List<Map<String, Object>> mets,  Map<String, RequestMetric> metrics, Map<String, String> references) {
+//     	if(mets != null)
+// 			for(Map<String, Object> metr : mets) {
+// 				Metric metric = constructMetric(metr, references);
 				
-				if(metric != null) 
-					metrics.put(slaName + "_" + metric.getName().toUpperCase(), new RequestMetric(metric, slaName));
-			}
-    }
+// 				if(metric != null) 
+// 					metrics.put(slaName + "_" + metric.getName().toUpperCase(), new RequestMetric(metric, slaName));
+// 			}
+//     }
     
-    private void insertRequirements(String slaName, List<Map<String, Object>> reqs,  Map<String, RequestSLO> requirements, char type) {
-		if(reqs != null)
-			for(Map<String, Object> req : reqs) {
-				RequestSLO slo = constructSLO(req, slaName, type);
-				requirements.put(slaName + "_" + slo.getSloName().toUpperCase(), slo);
+//     private void insertRequirements(String slaName, List<Map<String, Object>> reqs,  Map<String, RequestSLO> requirements, char type) {
+// 		if(reqs != null)
+// 			for(Map<String, Object> req : reqs) {
+// 				RequestSLO slo = constructSLO(req, slaName, type);
+// 				requirements.put(slaName + "_" + slo.getSloName().toUpperCase(), slo);
 				
-			}
-    }
+// 			}
+//     }
+
 
 
 //    @PostMapping("append/violation")
@@ -1016,4 +869,16 @@ public class SLAPostController {
 	private String encode(String query) {
 		return URLEncoder.encode(query, StandardCharsets.UTF_8);
 	}
+
+	private String getDatatype(String literalValue){
+		String result = "xsd:string";
+		
+		if(literalValue.matches("(\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)"))
+			result =  "xsd:decimal";
+		if(literalValue.matches("-?P((([0-9]+Y([0-9]+M)?([0-9]+D)?|([0-9]+M)([0-9]+D)?|([0-9]+D))(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S)))?)|(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S))))"))
+			result = "xsd:duration";
+				
+		return result;
+	}
+
 }
