@@ -40,15 +40,15 @@ public class OntologyConnection{
 //		jmsTemplate.convertAndSend(address, obj);
 //
 //	}
-//	public void getSimpleConstraint(SimpleConstraint constraint, String constraintName) {
-//		constraint.setFirstArgument(getInstances("inverse%20firstArgument%20value%20" + constraintName).get(0));
-//		Object secArg = getDataProperty(constraintName, "owlq:secondArgument").get(0);
-//		if(secArg instanceof String)
-//			constraint.setSecondArgument(((String) secArg).split("\"")[1]);
-//		else
-//			constraint.setSecondArgument(secArg);
-//		constraint.setOperator(ComparisonOperator.valueOf((String) getInstances("inverse%20operator%20value%20" + constraintName).get(0)));
-//	}
+	public void getSimpleConstraint(SimpleConstraint constraint, String constraintName) {
+		constraint.setFirstArgument(getInstances("inverse%20firstArgument%20value%20" + constraintName).get(0));
+		Object secArg = getDataProperty(constraintName, "owlq:secondArgument").get(0);
+		if(secArg instanceof String)
+			constraint.setSecondArgument(((String) secArg).split("\"")[1]);
+		else
+			constraint.setSecondArgument(secArg);
+		constraint.setOperator(ComparisonOperator.valueOf((String) getInstances("inverse%20operator%20value%20" + constraintName).get(0)));
+	}
 	public String createIndividual(String individualURI, String classURI) {
 		return client.post().uri("/create/individual")
 				.accept(MediaType.APPLICATION_JSON)
