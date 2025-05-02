@@ -1,10 +1,9 @@
 package org.seerc.nebulous.sla.rest;
 
 public class CreateDataPropertyPostBody {
+  
 	private String dataPropertyURI, domainURI;
 	private String value, type;
-
-	
 
 	public CreateDataPropertyPostBody(String dataPropertyURI, String domainURI, String value, String type) {
 		super();
@@ -13,6 +12,7 @@ public class CreateDataPropertyPostBody {
 		this.value = value;
 		this.type = type;
 	}
+
 
 	public String getDataPropertyURI() {
 		return dataPropertyURI;
@@ -44,9 +44,6 @@ public class CreateDataPropertyPostBody {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-
-	
+	}	
 	
 }

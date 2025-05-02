@@ -2,6 +2,7 @@ package org.seerc.nebulous.sla.rest;
 
 import java.net.URI;
 import java.time.Instant;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,6 +70,7 @@ public class OntologyConnection{
 				.accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(BodyInserters.fromValue(new CreateDataPropertyPostBody(dataPropertyURI, domainURI, value, type)))
+
 			    .retrieve().bodyToMono(String.class).block();
 	}
 	
@@ -110,5 +112,6 @@ public class OntologyConnection{
 			.accept(MediaType.APPLICATION_JSON)
 			.retrieve().bodyToMono(Integer.class).block()).get(0);	
 	}
+
 	
 }

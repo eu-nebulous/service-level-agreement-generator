@@ -1,0 +1,16 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build-and-push-sla-generator:
+    name: Build and push sla-generator
+    uses: eu-nebulous/github-actions/.github/workflows/build-and-push-container-image.yml@main
+    with:
+      context: .
+      image-name: service-level-agreement-generator
+    secrets: inherit

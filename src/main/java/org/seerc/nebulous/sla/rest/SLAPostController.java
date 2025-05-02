@@ -16,6 +16,7 @@ import org.seerc.nebulous.sla.components.SLA;
 import org.seerc.nebulous.sla.components.SLTransition;
 import org.seerc.nebulous.sla.components.Sensor;
 import org.seerc.nebulous.sla.components.WindowOutput;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +28,6 @@ public class SLAPostController {
 //	private SALConnection sal = SALConnection.getInstance();
 //	private ActiveMQConnection cluster = ActiveMQConnection.getInstance();
 	
-
 //	@PostMapping("create/models")
 //	public void parseModels() {
 //		
@@ -172,6 +172,7 @@ public class SLAPostController {
 
 		ontology.createIndividual(SLANAME, "owlq:SLA");
 		ontology.createIndividual(SLANAME, "odrl:AssetCollection");
+
 		return SLANAME;
     }
     
@@ -186,6 +187,7 @@ public class SLAPostController {
     	String slName = rsl.getSlaName() + "_SL_" + rsl.getSlName();
 		ontology.createIndividual(slName, "owlq:SL"); //Create the SL
 		ontology.createIndividual(slName, "odrl:AssetCollection"); //Create the SL
+
 		ontology.createObjectProperty("owlq:serviceLevel", rsl.getSlaName(), slName);	 //Connect it to the SLA	
 		ontology.createObjectProperty("odrl:partOf", slName,  rsl.getSlaName());	 //Connect it to the SLA		
 		ontology.createObjectProperty("owlq:logicalOperator", slName, "owlq:" + rsl.getOperator());
@@ -286,6 +288,7 @@ public class SLAPostController {
 //		
 //		return sloName;
 //    }   
+
     /**
      * Creates a new Metric.
      * @param rsl THE SL.
@@ -301,7 +304,6 @@ public class SLAPostController {
     	}catch(Exception e) {
     		return null;
     	}
-//    	System.out.println(m.getClass());
     	String metricName = metric.getSlaName() + "_" + m.getName();
 		ontology.createIndividual(metricName, "odrl:AssetCollection");
 
@@ -311,12 +313,12 @@ public class SLAPostController {
 			ontology.createIndividual(metricName, "owlq:CompositeMetric");
 //			System.out.println("metric name: " + metricName);
 			ontology.createDataProperty("neb:formula", metricName, ((CompositeMetric) m).getFormula(), "rdf:PlainLiteral");
+
     	}else if(m instanceof RawMetric){
     		
     		Sensor s = ((RawMetric) m).getSensor();
     		    			
 			ontology.createIndividual(metricName, "owlq:RawMetric");
-//			System.out.println("Raw metric:" + metricName);
 			
 			if(s != null) {
 			ontology.createIndividual(metricName + "_SENSOR", "owlq:Sensor");
@@ -326,6 +328,7 @@ public class SLAPostController {
 				ontology.createDataProperty("neb:type", metricName + "_SENSOR", s.getType(), "xsd:string");
 			if(s.getAffinity() != null)
 				ontology.createDataProperty("neb:affinity", metricName + "_SENSOR", s.getAffinity(), "xsd:string");
+
 			}
     	}else {
 			ontology.createIndividual(metricName, "owlq:Metric");
@@ -512,7 +515,6 @@ public class SLAPostController {
 			}
 		}
     	
-//    	System.out.println(windowOutput);
     	return windowOutput;
     }
 
@@ -530,13 +532,14 @@ public class SLAPostController {
     	}else {
     		woName = metricName  + "_OUTPUT";
     		typeStr = "neb:output";
+
     	}
     	
 //    	System.out.println("WO: " + wo);
      	ontology.createIndividual(woName, type);
      	ontology.createIndividual(woName, "odrl:Asset");
 		ontology.createObjectProperty(typeStr, metricName, woName);
-		ontology.createObjectProperty("odrl:partOf", woName, metricName);
+
 
 
     	 
@@ -555,8 +558,7 @@ public class SLAPostController {
     @PostMapping("create/sla")
     public void createCompleteSla(@RequestBody SLA sla) { 	
     	
-    	
-    	
+
     	final String slaName = this.createSLA(sla.getSlaName());
 
     	sla.getMetrics().forEach(metric -> {
@@ -596,6 +598,7 @@ public class SLAPostController {
 	        	
 	        	ontology.createDataProperty("owlq:violationThreshold", slTransName, Integer.toString(trans.getViolationThreshold()), "xsd:integer");
 	        	ontology.createDataProperty("owlq:evaluationPeriod", slTransName, trans.getEvaluationPeriod(), "xsd:duration");
+
 	    		
 	    	}
 	    	
@@ -607,14 +610,13 @@ public class SLAPostController {
 	    	ontology.createDataProperty("owlq:evaluationPeriod", slaName + "_SETTLEMENT", sla.getSettlement().getEvaluationPeriod().toString(), "xsd:duration");
 	    	ontology.createDataProperty("owlq:settlementCount", slaName + "_SETTLEMENT", Integer.toString(sla.getSettlement().getSettlementCount()),  "xsd:integer");
 	    	ontology.createDataProperty("owlq:settlementAction", slaName + "_SETTLEMENT", sla.getSettlement().getSettlementAction(), "xsd:string");
+
 	
 	    	
 	    	ontology.createObjectProperty("owlq:settlement", slaName, slaName + "_SETTLEMENT");
 	    	ontology.createObjectProperty("owlq:concernedSL", slaName + "_SETTLEMENT", slaName + "_SL_" + sla.getSettlement().getConcernedSL());
     	}
-    	  	
-    	
-    	
+
 //    	cluster.publish("slas", new ObjectMapper().convertValue(sla, new TypeReference<Map<String, Object>>() {}));
     }
     
@@ -733,6 +735,74 @@ public class SLAPostController {
 //    		createCompleteSla(sla);
 //    	}
 //    }
+
+
+//    @PostMapping("append/violation")
+//    public void addViolation(@RequestBody String slaName) {
+//    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
+//    	long currentTime = System.currentTimeMillis();
+//    	int activeViolations = 0;
+//    	
+////    	System.out.println("Begin");
+////    	slaAttributes.forEach((t, u) -> System.out.println(t + " " + u));
+////    	System.out.println("End");
+//
+//    	InMemorySLAAttributes attr = slaAttributes.get(slaName);
+//    	System.out.println(slaName + "_SL_" + attr.getActiveSL());
+//    	List<String> activeTransition = ontology.getInstances(encode("firstSL value " + slaName + "_SL_" + attr.getActiveSL()));
+//    	List<String> activeSettlement = ontology.getInstances(encode("concernedSL value " + slaName + "_SL_" + attr.getActiveSL()));
+//    	String active;
+//    	if(activeTransition == null || activeTransition.size() == 0) {
+//    		active = activeSettlement.get(0);;
+//    	}else
+//    		active = activeTransition.get(0);;
+//    	
+//    	System.out.println(active);
+//    	attr.appendViolation(currentTime);
+//    	 
+//    	for(int i =0; i< attr.getViolationTimeStamp().size(); i++) {
+//    		if(currentTime - attr.getViolationTimeStamp().get(i) <= hour) 
+//    			activeViolations++;
+//    	}
+//    	
+//    	int violationThreshold  = (int) ontology.getDataProperty(active, "owlq:violationThreshold").get(0);
+//    	
+//    	if(activeViolations >= violationThreshold) {
+//    		System.out.println("Violated (" + activeViolations + ")");
+//    		String s = ontology.getInstances("inverse secondSL value " + active).get(0).split("_")[3];
+//    		attr.setActiveSL(s);
+//    		attr.setViolationTimeStamp(new ArrayList<Long>());
+//    		
+//    		System.out.println("Switching to SL_" + attr.getActiveSL());
+//    	}
+//    	else
+//    		System.out.println("Not violated (" + activeViolations + ")");
+//    	
+//    	System.out.println(attr);
+//    }
+
+
+//    private void insertMetrics(String slaName, List<Map<String, Object>> mets,  Map<String, RequestMetric> metrics, Map<String, String> references) {
+//     	if(mets != null)
+// 			for(Map<String, Object> metr : mets) {
+// 				Metric metric = constructMetric(metr, references);
+				
+// 				if(metric != null) 
+// 					metrics.put(slaName + "_" + metric.getName().toUpperCase(), new RequestMetric(metric, slaName));
+// 			}
+//     }
+    
+//     private void insertRequirements(String slaName, List<Map<String, Object>> reqs,  Map<String, RequestSLO> requirements, char type) {
+// 		if(reqs != null)
+// 			for(Map<String, Object> req : reqs) {
+// 				RequestSLO slo = constructSLO(req, slaName, type);
+// 				requirements.put(slaName + "_" + slo.getSloName().toUpperCase(), slo);
+				
+// 			}
+//     }
+
+
+
 //    @PostMapping("append/violation")
 //    public void addViolation(@RequestBody String slaName) {
 //    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
@@ -799,6 +869,7 @@ public class SLAPostController {
 	private String encode(String query) {
 		return URLEncoder.encode(query, StandardCharsets.UTF_8);
 	}
+
 	private String getDatatype(String literalValue){
 		String result = "xsd:string";
 		
@@ -809,4 +880,5 @@ public class SLAPostController {
 				
 		return result;
 	}
+
 }

@@ -53,4 +53,5 @@ public class SimpleConstraint implements Constraint{
 		
 		return result;
 	}	
+
 }

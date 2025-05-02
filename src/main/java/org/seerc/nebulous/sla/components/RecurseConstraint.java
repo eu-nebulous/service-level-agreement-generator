@@ -28,6 +28,7 @@ public class RecurseConstraint {
 			ontology.createDataProperty("odrl:rightOperand", constraintName, constr.getSecondArgument().toString(), constr.getDatatype());
 			
 //			System.out.println(constraintName);
+
 			if(constr.getSettlementPricePercentage() >= 0d ) {
 				ontology.createIndividual(constraintName + "_PN", "owlq:Penalty");
 				ontology.createIndividual(constraintName + "_PN", "odrl:Asset"); 	
@@ -42,6 +43,7 @@ public class RecurseConstraint {
 				ontology.createObjectProperty("odrl:partOf", constraintName + "_PN_C", constraintName);
 		
 				ontology.createDataProperty("owlq:settlementPricePercentage", constraintName + "_PN_C", Double.toString(constr.getSettlementPricePercentage()), "xsd:double");
+
 			}
 		}else {
 			ComplexConstraint constr = (ComplexConstraint) constraint;
@@ -67,5 +69,5 @@ public class RecurseConstraint {
 	private int iterator() {
 		return iterator++;
 	}
-	
+
 }

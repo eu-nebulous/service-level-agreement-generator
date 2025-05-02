@@ -23,4 +23,5 @@ public class SLADeleteController {
 //		ontology.deleteIndividual(slaName);
 //	}
 //}
+
 }

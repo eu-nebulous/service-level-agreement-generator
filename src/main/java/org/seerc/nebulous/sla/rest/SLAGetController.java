@@ -2,6 +2,7 @@ package org.seerc.nebulous.sla.rest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.seerc.nebulous.sla.components.Settlement;
 import org.seerc.nebulous.sla.components.WindowOutput;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.nebulouscloud.exn.Connector;
+
 import eu.nebulouscloud.exn.core.Consumer;
 import eu.nebulouscloud.exn.core.Context;
 import eu.nebulouscloud.exn.core.Handler;
@@ -43,6 +46,7 @@ public class SLAGetController {
 	 * @return sla json
 	 * @throws Exception 
 	 */
+
 	@CrossOrigin
 	@GetMapping("/get/metrics/sla")
 	List<Metric> test(@RequestParam("appId") String appId) {
