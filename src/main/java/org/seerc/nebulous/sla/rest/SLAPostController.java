@@ -169,9 +169,11 @@ public class SLAPostController {
 		final String SLANAME = "neb:SLA_" + id;
 		
 //		ontology.registerAsset(SLANAME);
-
+		System.out.println("Creating SLA: " + SLANAME);
 		ontology.createIndividual(SLANAME, "owlq:SLA");
 		ontology.createIndividual(SLANAME, "odrl:AssetCollection");
+	    	System.out.println("Created SLA: " + SLANAME);
+
 
 		return SLANAME;
     }
