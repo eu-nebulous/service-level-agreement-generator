@@ -10,6 +10,11 @@ public class SLAServeUI {
 	public String greeting(@RequestParam(name="appId", required = true) String applicationId, @RequestParam(name="nonce", required = true) String nonce ) {
 		return "index";
 	}
+
+	@GetMapping({"/test"})
+	public String test() {
+		return "connected";
+	}
 	
 	
 }
