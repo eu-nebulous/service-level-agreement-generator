@@ -11,12 +11,8 @@ public class SLAGenerator {
 	
 	
 	public static void main(String[] args) {
-
-		for(int i = 0; i < args.length; i++) {
-			System.out.println("args: " + args[i]);
-		}
 //		SALConnection.getInstance(args[1]);
-		OntologyConnection.getInstance(args[0]);
+		OntologyConnection.getInstance("nebulous-ontology-server:80");
 		SpringApplication.run(SLAGenerator.class, args);
 	}
 	
