@@ -559,7 +559,7 @@ public class SLAPostController {
     
     @PostMapping("create/sla")
     public void createCompleteSla(@RequestBody SLA sla) { 	
-    	
+    	System.out.println("CREATING NEW SLA :" + sla.getSlaName());
 
     	final String slaName = this.createSLA(sla.getSlaName());
 
@@ -567,12 +567,13 @@ public class SLAPostController {
     		String metricName = this.createMetric(new RequestMetric(metric, slaName));
     		ontology.createObjectProperty("odrl:partOf", metricName, slaName);
     	});
+	System.out.println("Creating metrics...");
     	
     	for(int i = 0; i < sla.getSls().size(); i++) {
     		final SL sl =  sla.getSls().get(i);
     		
     		final String slName = this.createSL(new RequestSL(slaName, sl));
-    
+    		System.out.println("Creating SL and SLOs...");
     		RecurseConstraint rc = new RecurseConstraint(slName, slaName);
     		for(Constraint c : sl.getOperands()) {
     			
@@ -585,6 +586,7 @@ public class SLAPostController {
     	
     	if(sla.getTransitions() != null)
 	    	for(SLTransition trans : sla.getTransitions()) {
+			System.out.println("Creating Transition...");
 	    		final String slTransName = slaName + "_" + trans.getFirstSl() + "_TO_" + trans.getSecondSl();
 
 	    		
@@ -605,6 +607,7 @@ public class SLAPostController {
 	    	}
 	    	
     	if(sla.getSettlement() != null) {
+		System.out.println("Creating Settlement...");
 	    	ontology.createIndividual(slaName + "_SETTLEMENT", "owlq:Settlement");
 	    	ontology.createIndividual(slaName + "_SETTLEMENT", "odrl:Asset");
 	    	ontology.createObjectProperty("odrl:partOf", slaName + "_SETTLEMENT", slaName);
@@ -620,6 +623,7 @@ public class SLAPostController {
     	}
 
 //    	cluster.publish("slas", new ObjectMapper().convertValue(sla, new TypeReference<Map<String, Object>>() {}));
+	    System.out.println("Finished Creating SLA...");
     }
     
 //    @PostMapping("/create/device")
