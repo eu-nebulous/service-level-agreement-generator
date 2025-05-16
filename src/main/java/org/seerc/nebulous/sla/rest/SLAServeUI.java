@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class SLAServeUI {
-	@GetMapping({"/index", "/"})
+	@GetMapping({"/ui"})
 	public String greeting(@RequestParam(name="appId", required = true) String appId ) {
 
 		System.out.println("REACHED");
