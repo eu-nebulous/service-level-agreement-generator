@@ -14,6 +14,7 @@ public class SLAGenerator {
 //		SALConnection.getInstance(args[1]);
 		String url = "nebulous-ontology-server:80";
 		OntologyConnection.getInstance(url);
+		System.put.println("Test String");
 		System.out.println("The URL is: " + url);
 		SpringApplication.run(SLAGenerator.class, args);
 	}
