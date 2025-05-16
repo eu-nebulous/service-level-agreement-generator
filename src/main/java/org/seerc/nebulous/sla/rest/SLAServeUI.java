@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class SLAServeUI {
-	@GetMapping({"/index", "/"})
-	public String greeting(@RequestParam(name="appId", required = true) String appId, @RequestParam(name="nonce", required = true) String nonce ) {
-		return "index";
-	}
+	// @GetMapping({"/index", "/"})
+	// public String greeting(@RequestParam(name="appId", required = true) String appId, @RequestParam(name="nonce", required = true) String nonce ) {
+	// 	return "index";
+	// }
 
 	@GetMapping({"/test"})
 	public String test() {
