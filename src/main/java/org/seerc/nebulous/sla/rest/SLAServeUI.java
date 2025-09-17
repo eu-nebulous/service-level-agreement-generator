@@ -9,7 +9,6 @@ public class SLAServeUI {
 	@GetMapping({"/ui"})
 	public String greeting(@RequestParam(name="appId", required = true) String appId ) {
 
-		System.out.println("REACHED");
 		return "index";
 	}
 

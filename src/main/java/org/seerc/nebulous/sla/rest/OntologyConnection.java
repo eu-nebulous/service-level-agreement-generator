@@ -100,18 +100,18 @@ public class OntologyConnection{
 			.accept(MediaType.APPLICATION_JSON)
 			.retrieve().bodyToMono(String[].class).block());	
 	}
-	public String registerAsset(String assetName) {
-		return client.post().uri("/register/asset")
-				.accept(MediaType.APPLICATION_JSON)
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(BodyInserters.fromValue(new RegisterAssetBodyInserter(assetName, Instant.now().getEpochSecond())))
-			    .retrieve().bodyToMono(String.class).block();
-	}
-	public int countAssets(){
-		return Arrays.asList(client.get().uri("/count/assets")
-			.accept(MediaType.APPLICATION_JSON)
-			.retrieve().bodyToMono(Integer.class).block()).get(0);	
-	}
+//	public String registerAsset(String assetName) {
+//		return client.post().uri("/register/asset")
+//				.accept(MediaType.APPLICATION_JSON)
+//				.contentType(MediaType.APPLICATION_JSON)
+//				.body(BodyInserters.fromValue(new RegisterAssetBodyInserter(assetName, Instant.now().getEpochSecond())))
+//			    .retrieve().bodyToMono(String.class).block();
+//	}
+//	public int countAssets(){
+//		return Arrays.asList(client.get().uri("/count/assets")
+//			.accept(MediaType.APPLICATION_JSON)
+//			.retrieve().bodyToMono(Integer.class).block()).get(0);	
+//	}
 
 	
 }

@@ -26,6 +26,8 @@ public class RecurseConstraint {
 			ontology.createObjectProperty("owlq:firstArgument", constraintName, slaName +  "_" + constr.getFirstArgument());
 			ontology.createObjectProperty("owlq:operator", constraintName, "owlq:" + constr.getOperator().toString());
 			ontology.createDataProperty("odrl:rightOperand", constraintName, constr.getSecondArgument().toString(), constr.getDatatype());
+			System.out.println(constr.getSecondArgument().toString());
+			System.out.println(constr.getDatatype());
 			
 //			System.out.println(constraintName);
 
