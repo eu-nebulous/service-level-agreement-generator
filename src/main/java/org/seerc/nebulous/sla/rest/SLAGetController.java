@@ -47,12 +47,11 @@ public class SLAGetController {
 	 * @throws Exception 
 	 */
 
-	@CrossOrigin
 	@GetMapping("/get/metrics/sla")
 	List<Metric> test(@RequestParam("appId") String appId) {
 		List<Metric> res = new ArrayList<Metric>();
 		List<Map<String, Object>> metrics = (List<Map<String, Object>>) exn.getApp(appId).get("metrics");
-	
+		System.out.println(metrics);
 		for(var m: metrics) {
 			Metric metric = new Metric();
 			
@@ -87,7 +86,7 @@ public class SLAGetController {
 		List<String> result = new ArrayList<String>(ontology.getInstances("Metric and partOf value " + slaName));
 
 		for(int i = 0; i < result.size(); i++) 
-			result.add(i, result.remove(i).split("_")[2]);
+			result.add(i, result.remove(i).replaceFirst("SLA_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}_", ""));
 		
 		result.add("violationThreshold");
 		result.add("settlementCount");

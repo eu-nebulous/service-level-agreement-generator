@@ -2,12 +2,15 @@ package org.seerc.nebulous.sla.rest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.seerc.nebulous.sla.components.ComparisonOperator;
 import org.seerc.nebulous.sla.components.CompositeMetric;
 import org.seerc.nebulous.sla.components.Constraint;
+import org.seerc.nebulous.sla.components.InMemorySLAAttributes;
 import org.seerc.nebulous.sla.components.Metric;
 import org.seerc.nebulous.sla.components.RawMetric;
 import org.seerc.nebulous.sla.components.RecurseConstraint;
@@ -21,12 +24,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 public class SLAPostController {
-	//TODO: add error checking and discuss non-volatile storage.
 	private OntologyConnection ontology = OntologyConnection.getInstance();
+//    Map<String, InMemorySLAAttributes> slaAttributes = new HashMap<String, InMemorySLAAttributes>();
+
 //	private SALConnection sal = SALConnection.getInstance();
-//	private ActiveMQConnection cluster = ActiveMQConnection.getInstance();
 	
 //	@PostMapping("create/models")
 //	public void parseModels() {
@@ -106,59 +110,6 @@ public class SLAPostController {
 //	}
 	
 	
-//	@PostMapping("create/metricModel")
-//	public void parseMetricModel(Map<String, String> slaNames, Map<String, RequestMetric> metrics, Map<String, RequestSLO> requirements) {
-//		try {
-//			MetricModelParser metricModel = new MetricModelParser((new FileInputStream(new File("augmenta_metric_model_draft_v4.yml"))));
-//			Map<String, String> references = new HashMap<String, String>();
-//
-//			for(int i = 0; i < metricModel.getComponents().size(); i++) {
-//				
-//				String slaName = createSLA();
-//				slaNames.put((String) metricModel.getComponent(i).get("name"), slaName);
-//				
-//				List<Map<String, Object>> reqs = metricModel.getComponentRequirements(i);
-//				List<Map<String, Object>> mets = metricModel.getComponentMetrics(i);
-//				
-//				insertMetrics(slaName, mets, metrics, references);
-//				insertRequirements(slaName, reqs, requirements, 'R');
-//			} 
-//			
-//			//scopes
-//			for(Object sc : metricModel.getScopes()) {
-//				Map<String, Object> scope = (Map<String, Object>) sc;
-//				
-//				List<String> components = (List<String>) scope.get("components");
-//				
-//				List<Map<String, Object>> mets = (List<Map<String, Object>>) scope.get("metrics");
-//				List<Map<String, Object>> reqs = (List<Map<String, Object>>) scope.get("requirements");
-//				if(components != null)
-//					for(String comp : components) {
-//		 				
-//						String slaName = slaNames.get(comp);
-//												
-//						insertMetrics(slaName, mets, metrics, references);
-//						insertRequirements(slaName, reqs, requirements, 'R');
-//					}			
-//				else
-//		 			slaNames.forEach((t, u) -> {
-//						insertMetrics(u, mets, metrics, references);
-//						insertRequirements(u, reqs, requirements, 'R');
-//					});
-//						
-//			}
-//						
-//			references.forEach((t, u) -> {
-//				String []parts = u.split("[^a-z_]+");
-//				RequestMetric m = metrics.get(slaNames.get(parts[1]) + "_" + parts[2].toUpperCase());
-//				metrics.put(t, m);
-//			});
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
-//	
     /**
      * Creates a new SLA.
      * @return the URI of the new SLA.
@@ -196,100 +147,7 @@ public class SLAPostController {
     	
     	return slName;
     }
-    /**
-     * Creates a new SLO.
-     * @param slo THE SLO.
-     * @return the URI of the new SLO.
-     */
-//    @PostMapping("/create/slo")	
-//    public String createSLO(@RequestBody RequestSLO slo){
-//    	final String slaName = slo.getSlaName().split(":")[1];
-//		if(ontology.countInstances(encode("{" + slaName + "}")) != 1)
-//			return null;
-//		
-//		String sloName = slaName + "_SLO_";
-//		//The name of the SLO is determined by how many SLOs its SLA has.
-//		int i = 0;
-//		while(ontology.countInstances(encode("{" + sloName + i + "}")) != 0)
-//			i++;
-//		
-//		sloName += i;
-//		ontology.createIndividual("neb:" + sloName, "owlq:SLO"); //Create the SLO
-//		ontology.createIndividual("neb:" + sloName, "odrl:Asset"); //Create the SLO
-//		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slaName); //Connect it with its Metric
-//
-//		
-//		ontology.createObjectProperty("owlq:firstArgument", "neb:" + sloName, "neb:" + slaName + "_" + slo.getFirstArgument()); //Connect it with its Metric
-//		
-//		//Add second argument and operator.
-//		ontology.createDataProperty("odrl:rightOperand", "neb:" + sloName, slo.getSecondArgument().toString(), getDatatype(slo.getSecondArgument().toString()));		
-//		ontology.createObjectProperty("owlq:operator", "neb:" + sloName, "owlq:" + slo.getOperator().toString());
-//		
-//		//Connect to SL.
-//		ontology.createObjectProperty("owlq:constraint", slo.getSlName(), "neb:" + sloName);
-//		ontology.createObjectProperty("odrl:partOf", "neb:" + sloName, slo.getSlName());
-//
-//		
-////		System.out.println("SL NAME: " + slo.getSlName());
-////		if(slo.getSloType() == 'R' && slo.getTransition() != null) {
-////			final String slTransName = "neb:SL_TRANSITION_" + sloName;
-////			ontology.createIndividual(slTransName, "owlq:SLTransition");
-////			ontology.createObjectProperty("owlq:SLTransition", sloName, slTransName);
-////			
-////			ontology.createObjectProperty("owlq:firstSL", slTransName, slo.getSlName());
-////			ontology.createObjectProperty("owlq:secondSL", slTransName, slo.getTransition().getSl());
-////			
-////			ontology.createDataProperty("owlq:violationThreshold", slTransName, slo.getTransition().getViolationThreshold());
-////			ontology.createDataProperty("owlq:evaluationPeriod", slTransName, slo.getTransition().getEvaluationPeriod());
-////		}else if(slo.getSloType() == 'D') {
-////			
-////			ontology.createIndividual("neb:" + sloName + "_PENALTY", "owlq:Penalty");
-////			ontology.createObjectProperty("owlq:sloSettlement", sloName, "neb:" + sloName + "_PENALTY");
-////			
-////			ontology.createIndividual("neb:" + sloName + "_COMPENSATION", "owlq:SLOCompensation");
-////			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_COMPENSATION", slo.getSettlementPricePercentage());
-////			ontology.createObjectProperty("owlq:compensation", sloName, "neb:" + sloName + "_COMPENSATION");
-////		}
-//		//Add soft/negotiable.
-////		ontology.createDataProperty("owlq:soft", sloName, slo.isSoft());
-////		ontology.createDataProperty("owlq:negotiable", sloName, slo.isNegotiable());
-//		
-//		//Add penalty
-//		
-//		if(slo.getSettlementPricePercentage() >= 0d ) {
-//			ontology.createIndividual("neb:" + sloName + "_PN", "owlq:Penalty");
-//			ontology.createIndividual("neb:" + sloName + "_PN", "odrl:Asset"); 	
-//	
-//			ontology.createObjectProperty("owlq:penalty", "neb:" + sloName, "neb:" + sloName + "_PN");
-//			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN", "neb:" + sloName);
-//	
-//			ontology.createIndividual("neb:" + sloName + "_PN_C", "owlq:SLOCompensation");
-//			ontology.createIndividual("neb:" + sloName + "_PN_C", "odrl:Asset");
-//	
-//			ontology.createObjectProperty("owlq:compensation", "neb:" + sloName + "_PN", "neb:" + sloName + "_PN_C");
-//			ontology.createObjectProperty("odrl:partOf", "neb:" + sloName + "_PN_C", "neb:" + sloName);
-//	
-//			ontology.createDataProperty("owlq:settlementPricePercentage", "neb:" + sloName + "_PN_C", Double.toString(slo.getSettlementPricePercentage()), "xsd:double");
-//		}
-//	
-////		System.out.println("constraint made: neb:" + slaName + "_SL" + " ||| " +  sloName );
-////		if(slo.getQualifyingCondition() == null) 
-////			return sloName;
-////		
-////		SimpleConstraint qc = slo.getQualifyingCondition();
-////		//If QC exists, add create the class.
-////		ontology.createIndividual(sloName + "_QC", "owlq:QualifyingCondition");
-////		
-////		ontology.createIndividual("neb:" + qc.getFirstArgument(), "owlq:Metric");
-////		ontology.createObjectProperty("owlq:firstArgument", sloName + "_QC", "neb:" + qc.getFirstArgument());
-////		
-////		ontology.createDataProperty("owlq:secondArgument", sloName + "_QC", qc.getSecondArgument());
-////		ontology.createObjectProperty("owlq:operator", sloName + "_QC", qc.getOperator().toString());
-////		
-////		ontology.createObjectProperty("owlq:qualifyingCondition", sloName, sloName + "_QC");
-//		
-//		return sloName;
-//    }   
+
 
     /**
      * Creates a new Metric.
@@ -540,7 +398,10 @@ public class SLAPostController {
 //    	System.out.println("WO: " + wo);
      	ontology.createIndividual(woName, type);
      	ontology.createIndividual(woName, "odrl:Asset");
+     	
 		ontology.createObjectProperty(typeStr, metricName, woName);
+		ontology.createObjectProperty("odrl:partOf", woName, metricName);
+
 
 
 
@@ -622,7 +483,11 @@ public class SLAPostController {
 	    	ontology.createObjectProperty("owlq:concernedSL", slaName + "_SETTLEMENT", slaName + "_SL_" + sla.getSettlement().getConcernedSL());
     	}
 
+//    	slaAttributes.put(slaName, new InMemorySLAAttributes("1"));
 //    	cluster.publish("slas", new ObjectMapper().convertValue(sla, new TypeReference<Map<String, Object>>() {}));
+    	
+//    	ontology.registerAsset(slaName);
+    	System.out.println(slaName);
 	    System.out.println("Finished Creating SLA...");
     }
     
@@ -743,17 +608,19 @@ public class SLAPostController {
 //    }
 
 
+
 //    @PostMapping("append/violation")
 //    public void addViolation(@RequestBody String slaName) {
-//    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
+//    	final long evaluationPeriod;// = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
 //    	long currentTime = System.currentTimeMillis();
 //    	int activeViolations = 0;
-//    	
+////    	
 ////    	System.out.println("Begin");
 ////    	slaAttributes.forEach((t, u) -> System.out.println(t + " " + u));
 ////    	System.out.println("End");
 //
-//    	InMemorySLAAttributes attr = slaAttributes.get(slaName);
+////    	InMemorySLAAttributes attr = slaAttributes.get("neb:" + slaName);
+//    	
 //    	System.out.println(slaName + "_SL_" + attr.getActiveSL());
 //    	List<String> activeTransition = ontology.getInstances(encode("firstSL value " + slaName + "_SL_" + attr.getActiveSL()));
 //    	List<String> activeSettlement = ontology.getInstances(encode("concernedSL value " + slaName + "_SL_" + attr.getActiveSL()));
@@ -763,125 +630,74 @@ public class SLAPostController {
 //    	}else
 //    		active = activeTransition.get(0);;
 //    	
-//    	System.out.println(active);
-//    	attr.appendViolation(currentTime);
-//    	 
+//        String ep = (String) ontology.getDataProperty(active, "owlq:evaluationPeriod").get(0);
+//      	
+//        evaluationPeriod = getDurationInMilliseconds(ep);
+//        System.out.println(ep + " " + evaluationPeriod);
 //    	for(int i =0; i< attr.getViolationTimeStamp().size(); i++) {
-//    		if(currentTime - attr.getViolationTimeStamp().get(i) <= hour) 
+//    		if(currentTime - attr.getViolationTimeStamp().get(i) <= evaluationPeriod) 
 //    			activeViolations++;
 //    	}
-//    	
-//    	int violationThreshold  = (int) ontology.getDataProperty(active, "owlq:violationThreshold").get(0);
-//    	
-//    	if(activeViolations >= violationThreshold) {
+//    	int threshold;
+//    	char type = 't';
+//    	try {
+//    		threshold  = (int) ontology.getDataProperty(active, "owlq:violationThreshold").get(0);
+//    	}catch (Exception e) {
+//    		threshold = (int) ontology.getDataProperty(active, "owlq:settlementCount").get(0);
+//    		type = 's';
+//		}
+//    	if(activeViolations >= threshold) {
 //    		System.out.println("Violated (" + activeViolations + ")");
-//    		String s = ontology.getInstances("inverse secondSL value " + active).get(0).split("_")[3];
-//    		attr.setActiveSL(s);
-//    		attr.setViolationTimeStamp(new ArrayList<Long>());
-//    		
-//    		System.out.println("Switching to SL_" + attr.getActiveSL());
+//    		if (type == 't'){
+//	    		String s = ontology.getInstances("inverse secondSL value " + active).get(0).split("_")[3];
+//	    		attr.setActiveSL(s);
+//	    		attr.setViolationTimeStamp(new ArrayList<Long>());
+//	    		System.out.println("Switching to SL_" + attr.getActiveSL());
+//    		}else if(type == 's') {
+//    			System.out.println("Violated lowest SL...");
+//    		}
 //    	}
 //    	else
 //    		System.out.println("Not violated (" + activeViolations + ")");
 //    	
 //    	System.out.println(attr);
-//    }
-
-
-//    private void insertMetrics(String slaName, List<Map<String, Object>> mets,  Map<String, RequestMetric> metrics, Map<String, String> references) {
-//     	if(mets != null)
-// 			for(Map<String, Object> metr : mets) {
-// 				Metric metric = constructMetric(metr, references);
-				
-// 				if(metric != null) 
-// 					metrics.put(slaName + "_" + metric.getName().toUpperCase(), new RequestMetric(metric, slaName));
-// 			}
-//     }
-    
-//     private void insertRequirements(String slaName, List<Map<String, Object>> reqs,  Map<String, RequestSLO> requirements, char type) {
-// 		if(reqs != null)
-// 			for(Map<String, Object> req : reqs) {
-// 				RequestSLO slo = constructSLO(req, slaName, type);
-// 				requirements.put(slaName + "_" + slo.getSloName().toUpperCase(), slo);
-				
-// 			}
-//     }
-
-
-
-//    @PostMapping("append/violation")
-//    public void addViolation(@RequestBody String slaName) {
-//    	final long hour = 3600000; // 60 s * 60 min * 1000 to convert to milliseconds.
-//    	long currentTime = System.currentTimeMillis();
-//    	int activeViolations = 0;
-//    	
-////    	System.out.println("Begin");
-////    	slaAttributes.forEach((t, u) -> System.out.println(t + " " + u));
-////    	System.out.println("End");
-//
-//    	InMemorySLAAttributes attr = slaAttributes.get(slaName);
-//    	System.out.println(slaName + "_SL_" + attr.getActiveSL());
-//    	List<String> activeTransition = ontology.getInstances(encode("firstSL value " + slaName + "_SL_" + attr.getActiveSL()));
-//    	List<String> activeSettlement = ontology.getInstances(encode("concernedSL value " + slaName + "_SL_" + attr.getActiveSL()));
-//    	String active;
-//    	if(activeTransition == null || activeTransition.size() == 0) {
-//    		active = activeSettlement.get(0);;
-//    	}else
-//    		active = activeTransition.get(0);;
-//    	
-//    	System.out.println(active);
-//    	attr.appendViolation(currentTime);
-//    	 
-//    	for(int i =0; i< attr.getViolationTimeStamp().size(); i++) {
-//    		if(currentTime - attr.getViolationTimeStamp().get(i) <= hour) 
-//    			activeViolations++;
-//    	}
-//    	
-//    	int violationThreshold  = (int) ontology.getDataProperty(active, "owlq:violationThreshold").get(0);
-//    	
-//    	if(activeViolations >= violationThreshold) {
-//    		System.out.println("Violated (" + activeViolations + ")");
-//    		String s = ontology.getInstances("inverse secondSL value " + active).get(0).split("_")[3];
-//    		attr.setActiveSL(s);
-//    		attr.setViolationTimeStamp(new ArrayList<Long>());
-//    		
-//    		System.out.println("Switching to SL_" + attr.getActiveSL());
-//    	}
-//    	else
-//    		System.out.println("Not violated (" + activeViolations + ")");
-//    	
-//    	System.out.println(attr);
-//    }
-
-//    private void insertMetrics(String slaName, List<Map<String, Object>> mets,  Map<String, RequestMetric> metrics, Map<String, String> references) {
-//    	if(mets != null)
-//			for(Map<String, Object> metr : mets) {
-//				Metric metric = constructMetric(metr, references);
-//				
-//				if(metric != null) 
-//					metrics.put(slaName + "_" + metric.getName().toUpperCase(), new RequestMetric(metric, slaName));
-//			}
-//    }
-//    
-//    private void insertRequirements(String slaName, List<Map<String, Object>> reqs,  Map<String, RequestSLO> requirements, char type) {
-//		if(reqs != null)
-//			for(Map<String, Object> req : reqs) {
-//				RequestSLO slo = constructSLO(req, slaName, type);
-//				requirements.put(slaName + "_" + slo.getSloName().toUpperCase(), slo);
-//				
-//			}
 //    }
 
 	private String encode(String query) {
 		return URLEncoder.encode(query, StandardCharsets.UTF_8);
 	}
-
+//	private long getDurationInMilliseconds(String duration) {
+//		String date = duration.split("T")[0];
+//		String time = duration.split("T")[1];
+//
+//		long milliseconds = 0;
+////		String h[] = time.split("H");
+////		
+////		for(int i = 0; i < h.length; i++)
+////			System.out.println("h " + i + ": " + h[i]);
+//			
+//		if(date.matches("Y"))
+//			milliseconds += 31557600000L * Long.parseLong(date.split("Y")[0]); //Years
+//		if(date.matches("M"))
+//			milliseconds +=  2629746000L * Long.parseLong(date.split("M)")[0]); //Months
+//		if(date.matches("D"))
+//			milliseconds +=    86400000L * Long.parseLong(date.split("D")[0]); //Days
+//		
+//		if(time.matches("H"))
+//			milliseconds +=     3600000L * Long.parseLong(time.split("H")[0]); //Hours
+//		if(time.matches("M"))
+//		milliseconds +=       60000L * Long.parseLong(time.split("M")[0]); //Hours
+//		if(time.matches("S"))
+//			milliseconds +=        1000L * Long.parseLong(time.split("S")[0]); //Minutes
+//		
+//		return milliseconds;
+//	}
 	private String getDatatype(String literalValue){
 		String result = "xsd:string";
 		
 		if(literalValue.matches("(\\+|-)?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)"))
 			result =  "xsd:decimal";
-		if(literalValue.matches("-?P((([0-9]+Y([0-9]+M)?([0-9]+D)?|([0-9]+M)([0-9]+D)?|([0-9]+D))(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S)))?)|(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S))))"))
+		else if(literalValue.matches("-?P((([0-9]+Y([0-9]+M)?([0-9]+D)?|([0-9]+M)([0-9]+D)?|([0-9]+D))(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S)))?)|(T(([0-9]+H)([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?|([0-9]+M)([0-9]+(\\.[0-9]+)?S)?|([0-9]+(\\.[0-9]+)?S))))"))
 			result = "xsd:duration";
 				
 		return result;
