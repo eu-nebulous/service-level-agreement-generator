@@ -484,7 +484,7 @@ public class SLAPostController {
     	}
 
 //    	slaAttributes.put(slaName, new InMemorySLAAttributes("1"));
-//    	cluster.publish("slas", new ObjectMapper().convertValue(sla, new TypeReference<Map<String, Object>>() {}));
+		EXNConnection.getInstance().publishSLA(sla);
     	
 //    	ontology.registerAsset(slaName);
     	System.out.println(slaName);
