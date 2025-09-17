@@ -31,7 +31,7 @@ public class EXNConnection {
 		};
 
 		p = new SyncedPublisher("eu-app-get-publisher", "eu.nebulouscloud.ui.app.get", true, true);
-		conn = new Connector("eu", h , List.of(p), List.of(), new StaticExnConfig("localhost",5672,"admin","admin",5));
+		conn = new Connector("eu", h , List.of(p), List.of(), new StaticExnConfig("nebulous-activemq",5672,"admin","admin",5));
 
 		conn.start();
 
