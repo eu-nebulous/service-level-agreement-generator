@@ -53,13 +53,13 @@ public class EXNConnection {
 	
 	public Map getApp(String appId) {
 			
-		return getFromUi.sendSync(Map.of("appId", appId), appId, null, false);
+		return getFromUi.sendSyc(Map.of("appId", appId), appId, null, false);
 	}
 	
 	public void publishSLA(SLA sla) {
 		Map m = new HashMap(new ObjectMapper().convertValue(sla, new TypeReference<Map<String, Object>>() {}));
 
-		System.out.println(postToSla.sendSync(m, sla.getSlaName(), null, false));
+		postToSla.send(m, sla.getSlaName(), null, false);
 	}
 }
 
