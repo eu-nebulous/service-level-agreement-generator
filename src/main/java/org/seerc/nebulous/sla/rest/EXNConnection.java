@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import eu.nebulouscloud.exn.Connector;
 import eu.nebulouscloud.exn.core.Context;
-
+import eu.nebulouscloud.exn.core.Publisher;
 import eu.nebulouscloud.exn.core.SyncedPublisher;
 import eu.nebulouscloud.exn.handlers.ConnectorHandler;
 import eu.nebulouscloud.exn.settings.StaticExnConfig;
@@ -52,8 +52,7 @@ public class EXNConnection {
 	}
 	
 	public Map getApp(String appId) {
-			
-		return getFromUi.sendSyc(Map.of("appId", appId), appId, null, false);
+		return getFromUi.sendSync(Map.of("appId", appId), appId, null, false);
 	}
 	
 	public void publishSLA(SLA sla) {
