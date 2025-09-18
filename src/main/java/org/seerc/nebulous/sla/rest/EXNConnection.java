@@ -22,7 +22,7 @@ public class EXNConnection {
 	private static ConnectorHandler h;
 	private static Connector conn;
 	private static SyncedPublisher getFromUi;
-	private static SyncedPublisher postToSla;
+	private static Publisher postToSla;
 	
 	private EXNConnection() {
 		
@@ -37,7 +37,7 @@ public class EXNConnection {
 		};
 
 		getFromUi = new SyncedPublisher("eu-app-get-publisher", "eu.nebulouscloud.ui.app.get", true, true);
-		postToSla= new SyncedPublisher("eu-ontology-sla-publisher", "eu.nebulouscloud.ontology.sla", true, true);
+		postToSla= new Publisher("eu-ontology-sla-publisher", "eu.nebulouscloud.ontology.sla", true, true);
 
 		conn = new Connector("eu", h , List.of(getFromUi, postToSla), List.of(), new StaticExnConfig("nebulous-activemq",5672,"admin","admin",5));
 
