@@ -4,9 +4,11 @@ public class RawMetric extends Metric{
 	private Sensor sensor;
 
 	public RawMetric() {
+		super();
 		sensor = new Sensor();
 	}
 	public RawMetric(Metric m) {
+		super();
 		sensor = new Sensor();
 		this.setName(m.getName());
 		this.setOutput(m.getOutput());

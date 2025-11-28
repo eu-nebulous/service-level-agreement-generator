@@ -1,5 +1,6 @@
 package org.seerc.nebulous.sla.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -10,6 +11,12 @@ public class ComplexConstraint implements Constraint{
 	protected String operator;
 	protected List<Constraint> operands;
 	
+	
+	public ComplexConstraint() {
+		super();
+		operands = new ArrayList<Constraint>();
+	}
+
 	public String getOperator() {
 		return operator;
 	}
@@ -26,11 +33,6 @@ public class ComplexConstraint implements Constraint{
 	
 	public void addOperand(Constraint c) {
 		operands.add(c);
-	}
-
-	@Override
-	public boolean isComplex() {
-		return true;
 	}
 
 	@Override
