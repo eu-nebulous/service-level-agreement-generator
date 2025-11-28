@@ -8,9 +8,15 @@ public class CompositeMetric extends Metric{
 		super();
 	}
 	public CompositeMetric(Metric m) {
+		super();
 		this.setName(m.getName());
 		this.setOutput(m.getOutput());
 		this.setWindow(m.getWindow());
+	}
+	public CompositeMetric(String name) {
+		super();
+		this.setName(name);
+
 	}
 	public String getFormula() {
 		return formula;

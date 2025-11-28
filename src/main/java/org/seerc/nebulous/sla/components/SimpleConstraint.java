@@ -32,10 +32,6 @@ public class SimpleConstraint implements Constraint{
 	}
 
 	@Override
-	public boolean isComplex() {
-		return false;
-	}
-	@Override
 	public String toString() {
 		return "SimpleConstraint [firstArgument = " + firstArgument + ", operator = " + operator + ", secondArgument = "
 				+ secondArgument + "]";

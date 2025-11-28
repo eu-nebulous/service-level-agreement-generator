@@ -19,36 +19,36 @@ public class RecurseConstraint {
 		
 		String constraintName = constraintName();
 		
-		if(!constraint.isComplex()) {
-			SLO constr = (SLO) constraint;
+		System.out.println(constraint.toString());
+		if(constraint instanceof SimpleConstraint constr) {
+			
 //			System.out.println(slaName +  "_" + constr.getFirstArgument());
 			ontology.createIndividual(constraintName, "owlq:SLO");
 			ontology.createObjectProperty("owlq:firstArgument", constraintName, slaName +  "_" + constr.getFirstArgument());
 			ontology.createObjectProperty("owlq:operator", constraintName, "owlq:" + constr.getOperator().toString());
-			ontology.createDataProperty("odrl:rightOperand", constraintName, constr.getSecondArgument().toString(), constr.getDatatype());
+			ontology.createDataProperty("neb:secondOperand", constraintName, constr.getSecondArgument().toString(), constr.getDatatype());
 			System.out.println(constr.getSecondArgument().toString());
 			System.out.println(constr.getDatatype());
 			
 //			System.out.println(constraintName);
 
-			if(constr.getSettlementPricePercentage() >= 0d ) {
-				ontology.createIndividual(constraintName + "_PN", "owlq:Penalty");
-				ontology.createIndividual(constraintName + "_PN", "odrl:Asset"); 	
-		
-				ontology.createObjectProperty("owlq:penalty", constraintName, constraintName + "_PN");
-				ontology.createObjectProperty("odrl:partOf", constraintName + "_PN", constraintName);
-		
-				ontology.createIndividual(constraintName + "_PN_C", "owlq:SLOCompensation");
-				ontology.createIndividual(constraintName + "_PN_C", "odrl:Asset");
-		
-				ontology.createObjectProperty("owlq:compensation", constraintName + "_PN", constraintName + "_PN_C");
-				ontology.createObjectProperty("odrl:partOf", constraintName + "_PN_C", constraintName);
-		
-				ontology.createDataProperty("owlq:settlementPricePercentage", constraintName + "_PN_C", Double.toString(constr.getSettlementPricePercentage()), "xsd:double");
-
-			}
-		}else {
-			ComplexConstraint constr = (ComplexConstraint) constraint;
+//			if(constr.getSettlementPricePercentage() >= 0d ) {
+//				ontology.createIndividual(constraintName + "_PN", "owlq:Penalty");
+//				ontology.createIndividual(constraintName + "_PN", "odrl:Asset"); 	
+//		
+//				ontology.createObjectProperty("owlq:penalty", constraintName, constraintName + "_PN");
+//				ontology.createObjectProperty("odrl:partOf", constraintName + "_PN", constraintName);
+//		
+//				ontology.createIndividual(constraintName + "_PN_C", "owlq:SLOCompensation");
+//				ontology.createIndividual(constraintName + "_PN_C", "odrl:Asset");
+//		
+//				ontology.createObjectProperty("owlq:compensation", constraintName + "_PN", constraintName + "_PN_C");
+//				ontology.createObjectProperty("odrl:partOf", constraintName + "_PN_C", constraintName);
+//		
+//				ontology.createDataProperty("owlq:settlementPricePercentage", constraintName + "_PN_C", Double.toString(constr.getSettlementPricePercentage()), "xsd:double");
+//
+//			}
+		}else if(constraint instanceof ComplexConstraint constr){
 			
 			ontology.createIndividual(constraintName, "owlq:ComplexConstraint");
 			ontology.createIndividual(constraintName, "odrl:AssetCollection");

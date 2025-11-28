@@ -2,15 +2,11 @@ package org.seerc.nebulous.sla.rest;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.seerc.nebulous.sla.components.ComparisonOperator;
 import org.seerc.nebulous.sla.components.CompositeMetric;
 import org.seerc.nebulous.sla.components.Constraint;
-import org.seerc.nebulous.sla.components.InMemorySLAAttributes;
 import org.seerc.nebulous.sla.components.Metric;
 import org.seerc.nebulous.sla.components.RawMetric;
 import org.seerc.nebulous.sla.components.RecurseConstraint;
@@ -110,11 +106,7 @@ public class SLAPostController {
 //	}
 	
 	
-    /**
-     * Creates a new SLA.
-     * @return the URI of the new SLA.
-     */
-//    @PostMapping("/create/sla")
+
     public String createSLA(String id) {
     	
 		final String SLANAME = "neb:SLA_" + id;
