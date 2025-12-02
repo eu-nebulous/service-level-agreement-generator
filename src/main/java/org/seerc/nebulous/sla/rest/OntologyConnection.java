@@ -19,9 +19,10 @@ public class OntologyConnection{
 	private WebClient ontologyClient;
 	private WebClient bqaClient;
 	private OntologyConnection(String slaHost, String bqaHost) {
+		System.out.println("In: " + slaHost);
 		ontologyClient = WebClient.create(slaHost); //localhost:80
 		bqaClient = WebClient.create(bqaHost);
-		
+		System.out.println(ontologyClient.toString());
 	}
 	
 	public static OntologyConnection getInstance(String slaHost, String bqaHost) {
