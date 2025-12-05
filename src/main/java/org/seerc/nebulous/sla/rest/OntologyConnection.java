@@ -24,9 +24,9 @@ public class OntologyConnection{
 		
 	}
 	
-	public static OntologyConnection getInstance(String slaHost, String bqaHost) {
+	public static OntologyConnection getInstance(String ontHost, String bqaHost) {
 		if(singleton == null)
-			singleton = new OntologyConnection(slaHost, bqaHost);
+			singleton = new OntologyConnection(ontHost, bqaHost);
 		
 		return singleton;
 	}

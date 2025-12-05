@@ -13,9 +13,10 @@ public class SLAGenerator {
 	
 	public static void main(String[] args) {
 //		SALConnection.getInstance(args[1]);
-		String ontUrl = "http://nebulous-ontology-server:80";
-		String bqaUrl = "http://nebulous-brokerage-quality-assurance-server:8080";
-		OntologyConnection.getInstance(ontUrl, bqaUrl);
+
+		System.out.println("Ontology URL:" + args[0]);
+		System.out.println("BQA URL:" + args[1]);
+		OntologyConnection.getInstance(args[0], args[1]);
 		EXNConnection.getInstance();
 		SpringApplication.run(SLAGenerator.class, args);
 	}
