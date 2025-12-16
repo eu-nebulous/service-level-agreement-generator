@@ -80,7 +80,7 @@ public class OntologyConnection{
 	}
 	
 	public void deleteIndividual(String individualName) {
-		ontologyClient.delete().uri(URI.create("/delete/individual?individualName=" + individualName))
+		ontologyClient.delete().uri("/delete/individual?individualName=" + individualName)
 			.accept(MediaType.APPLICATION_JSON)
 		    .retrieve().bodyToMono(String.class).block();
 	}
