@@ -160,7 +160,7 @@ public class EXNConnection {
 					}
 
 					sla.createCompleteSla();
-//					ontology.validate(uuid);
+					ontology.validate(uuid);
 				} catch (ClientException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
