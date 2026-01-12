@@ -194,11 +194,24 @@ public class EXNConnection {
 		    }
 		};
 //		getFromUi = new SyncedPublisher("eu-app-get-publisher", "eu.nebulouscloud.ui.app.get", true, true);
+		
+		String brokerUrl = System.getenv("BROKER_URL");
+		if (brokerUrl == null) brokerUrl = "localhost";
+		
+		String brokerPortStr = System.getenv("BROKER_PORT");
+		Integer brokerPort = brokerPortStr != null ? Integer.parseInt(brokerPortStr) : 5672;
+		
+		String brokerUsername = System.getenv("BROKER_USERNAME");
+		if (brokerUsername == null) brokerUsername = "admin";
+		
+		String brokerPassword = System.getenv("BROKER_PASSWORD");
+		if (brokerPassword == null) brokerPassword = "admin";
+		
 		postToSla= new Publisher("eu-ontology-sla-publisher", "eu.nebulouscloud.ontology.sla", true, true);
 		slaFromUi = new Consumer("bqa",        "eu.nebulouscloud.ontology.bqa", slaHandler, true, true);
-		
-		conn = new Connector("eu.nebulouscloud", h , List.of(postToSla), List.of(slaFromUi), new StaticExnConfig("nebulous-activemq",5672,"admin","admin",5));
-		
+
+		System.out.println(String.format("Got connection properties: BROKER_URL: %s, BROKER_PORT: %s BROKER_USERNAME: %s", brokerUrl, brokerPort, brokerUsername));
+		conn = new Connector("eu.nebulouscloud", h , List.of(postToSla), List.of(slaFromUi), new StaticExnConfig(brokerUrl,brokerPort,brokerUsername,brokerPassword,5));		
 		conn.start();
 
 	}
