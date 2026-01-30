@@ -65,13 +65,13 @@ public class SLA implements Serializable{
 	public void setSettlement(Settlement settlement) {
 		this.settlement = settlement;
 	}
+	
+	
 	@Override
 	public String toString() {
-		return "CompleteSLA [sls = " + sls + ", metrics = " + metrics + ", transitions = " + transitions + "]";
+		return "SLA [slaName = " + slaName + ", sls = " + sls + ", metrics = " + metrics + ", transitions = "
+				+ transitions + ", settlement = " + settlement + "]";
 	}
-	
-	
-	
 	public void createCompleteSla() { 	
 
 //		System.out.println(this);

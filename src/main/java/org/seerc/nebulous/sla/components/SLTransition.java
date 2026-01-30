@@ -7,6 +7,17 @@ public class SLTransition implements Serializable {
 	private int violationThreshold;
 	
 
+	
+	public SLTransition() {
+		super();
+	}
+	public SLTransition(String firstSl, String secondSl, String evaluationPeriod, int violationThreshold) {
+		super();
+		this.firstSl = firstSl;
+		this.secondSl = secondSl;
+		this.evaluationPeriod = evaluationPeriod;
+		this.violationThreshold = violationThreshold;
+	}
 	public int getViolationThreshold() {
 		return violationThreshold;
 	}

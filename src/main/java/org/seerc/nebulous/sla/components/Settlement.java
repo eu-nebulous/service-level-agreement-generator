@@ -5,10 +5,18 @@ import java.io.Serializable;
 public class Settlement implements Serializable{
 	private String evaluationPeriod;
 	private int settlementCount;
-	private int concernedSL;
+	private String concernedSL;
 	private String settlementAction;
 
 	
+	
+	public Settlement(String evaluationPeriod, int settlementCount, String concernedSL) {
+		super();
+		this.evaluationPeriod = evaluationPeriod;
+		this.settlementCount = settlementCount;
+		this.concernedSL = concernedSL;
+		this.settlementAction = "CANCEL";
+	}
 	public String getEvaluationPeriod() {
 		return evaluationPeriod;
 	}
@@ -21,10 +29,10 @@ public class Settlement implements Serializable{
 	public void setSettlementCount(int settlementCount) {
 		this.settlementCount = settlementCount;
 	}
-	public int getConcernedSL() {
+	public String getConcernedSL() {
 		return concernedSL;
 	}
-	public void setConcernedSL(int concernedSL) {
+	public void setConcernedSL(String concernedSL) {
 		this.concernedSL = concernedSL;
 	}
 	public String getSettlementAction() {
@@ -32,6 +40,11 @@ public class Settlement implements Serializable{
 	}
 	public void setSettlementAction(String settlementAction) {
 		this.settlementAction = settlementAction;
+	}
+	@Override
+	public String toString() {
+		return "Settlement [evaluationPeriod = " + evaluationPeriod + ", settlementCount = " + settlementCount
+				+ ", concernedSL = " + concernedSL + ", settlementAction = " + settlementAction + "]";
 	}
 	
 	

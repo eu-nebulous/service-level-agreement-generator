@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.qpid.protonj2.client.Message;
 import org.apache.qpid.protonj2.client.exceptions.ClientException;
 import org.seerc.nebulous.sla.components.ComplexConstraint;
@@ -19,7 +17,6 @@ import org.seerc.nebulous.sla.components.SL;
 import org.seerc.nebulous.sla.components.SLA;
 import org.seerc.nebulous.sla.components.SLTransition;
 import org.seerc.nebulous.sla.components.Settlement;
-import org.seerc.nebulous.sla.components.SimpleConstraint;
 import org.seerc.nebulous.sla.components.WindowOutput;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -59,8 +56,6 @@ public class EXNConnection {
 		    @SuppressWarnings({ "rawtypes", "unchecked" })
 			@Override
 		    public void onMessage(String key, String address, Map body, Message message, Context context) {
-
-//		    	System.out.println(body.get("sloViolations"));
 		    	try {
 			    	String uuid = (String) message.property("application");
 
@@ -68,46 +63,53 @@ public class EXNConnection {
 //					System.out.println("SLANAME: " +sla.getSlaName());
 //					System.out.println(ontology.countInstances("{SLA_" + sla.getSlaName() + "}"));
 					
-					if(ontology.countInstances("{SLA_" + sla.getSlaName() + "}") > 0) {
-						for(String indName:ontology.getInstances("partOf value SLA_" + sla.getSlaName())) {
-							System.out.println(indName);
-							ontology.deleteIndividual(indName);
-						}
-						ontology.deleteIndividual("SLA_" + sla.getSlaName());
-					}
+//					if(ontology.countInstances("{SLA_" + sla.getSlaName() + "}") > 0) {
+//						for(String indName:ontology.getInstances("partOf value SLA_" + sla.getSlaName())) {
+//							ontology.deleteIndividual(indName);
+//						}
+//						System.out.println("Deleting SLA_" + sla.getSlaName());
+//						ontology.deleteIndividual("SLA_" + sla.getSlaName());
+//					}
 					
 					Set<Metric> metrics = new HashSet<Metric>();
 					
 					List<SL> sls = new ArrayList<SL>();
-					Constraint sl1Con  = Constraint.constructConstraint(((Map) body.get("sloViolations")));
-					
-//					ComplexConstraint slCons  = (ComplexConstraint) Constraint.constructConstraint(					
-//						new ObjectMapper().readValue(
-//						(String) body.get("slCreations"), new TypeReference<Map<String,Object>>(){})
-//					);
-//					
-					int slCounter = 1;
+					List<SLTransition> trans = new ArrayList<SLTransition>();
+					Settlement settlement = null;
+											
+			    	List<Map> slList = new ArrayList<Map>();
+			    	
+			    	Map sl1 = (Map) body.get("sloViolations");
+			    	sl1.put("evaluationPeriod", "1600");
+			    	sl1.put("violationThreshold", "4");
+			    	slList.add(sl1);
+			    	
+			    	ObjectMapper objectMapper = new ObjectMapper();
+			    	slList.addAll(objectMapper.readValue((String) body.get("slCreations"), new TypeReference<List>(){}));
+			    	
+			    	
+			    	for(int i = 0; i < slList.size(); i++) {
+			    		Map slMap = (Map) slList.get(i);
+			    		int slNumber = i + 1;
+			    		if(Constraint.constructConstraint(slMap) instanceof ComplexConstraint sl) {
+			    			sls.add(new SL(sl, Integer.toString(slNumber)));
 
-					if(sl1Con instanceof ComplexConstraint c)
-						sls.add(new SL(c, Integer.toString(slCounter++)));
-					
-//					for(Constraint cons : slCons.getOperands()) {
-//						if(cons instanceof ComplexConstraint c)
-//							sls.add(new SL(c, Integer.toString(slCounter++)));
-//						else if (cons instanceof SimpleConstraint c) {
-//							SL x = new SL(Integer.toString(slCounter++));
-//							x.addOperand(c);
-//							x.setOperator("owlq:AND");
-//							sls.add(x);
-//							
-//						}
-//					}
-						
-										
-					sla.setSls(sls);
-					sla.setMetrics(metrics);
-					
-					
+			    			if (slNumber == slList.size()) {
+			    				settlement = new Settlement(
+			    						"PT" + Integer.toString(Integer.parseInt((String) slMap.get("evaluationPeriod"))) + "S",
+			    						Integer.parseInt((String) slMap.get("violationThreshold")),
+			    						Integer.toString(slNumber));
+
+			    			}else {		
+			    				trans.add(new SLTransition(
+				    					Integer.toString(slNumber), 
+				    					Integer.toString(slNumber + 1),
+			    						"PT" + Integer.toString(Integer.parseInt((String) slMap.get("evaluationPeriod"))) + "S",
+						    			Integer.parseInt((String) slMap.get("violationThreshold"))));
+			    			}
+			    		}
+			    		
+			    	}	
 					
 //					System.out.println(sl1);
 					WindowOutput win = new WindowOutput();
@@ -135,33 +137,16 @@ public class EXNConnection {
 							metrics.add(cm);
 						}
 					}
+	
+					sla.setSls(sls);
+					sla.setTransitions(trans);
+					sla.setSettlement(settlement);
+					sla.setMetrics(metrics);
 					
-					List<SLTransition> trans = new ArrayList<SLTransition>();
-					for(int i = 1; i <= sla.getSls().size(); i++){
-						if(i == sla.getSls().size()) {
-							Settlement stl = new Settlement();
-							stl.setConcernedSL(i);
-							stl.setEvaluationPeriod("PT1H");
-							stl.setSettlementCount(4);
-							stl.setSettlementAction("CANCEL");
-							sla.setSettlement(stl);
-						}else {
-							SLTransition tr = new SLTransition();
-							tr.setEvaluationPeriod("PT1H");
-							tr.setViolationThreshold(4);
-							System.out.println(i);
-							tr.setFirstSl(Integer.toString(i));
-							tr.setFirstSl(Integer.toString(i + 1));
-							trans.add(tr);
-						}
-
-						sla.setTransitions(trans);
-						
-					}
-
+					
 					sla.createCompleteSla();
 					ontology.validate(uuid);
-				} catch (ClientException e) {
+				} catch (ClientException | JsonProcessingException  e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
@@ -179,11 +164,11 @@ public class EXNConnection {
 //				}
 		    	
 //		        Policy p = Policy.ConstructPolicy((Map) ((Map) body.get("body")).get("slMetaConstraints"));
-		        
-//		        String uuid = p.getAsset().split(":")[1];
-//		        ontology.createPolicy(p);
-//		        boolean valid = ontology.validate(uuid);
 //		        
+//		        String uuid = p.getAsset().split(":")[1];
+//		        ontology.createPolicy(sla);
+//		        ontology.validate(uuid);
+		        
 //		        try {
 //					bqaVerification.send(Map.of("uuid", uuid, "valid", valid, "message", 
 //							valid ? "The application is valid" : "The application is not valid"),
