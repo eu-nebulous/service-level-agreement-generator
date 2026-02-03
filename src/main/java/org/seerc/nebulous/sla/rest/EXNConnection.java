@@ -190,7 +190,7 @@ public class EXNConnection {
 		if (brokerUsername == null) brokerUsername = "admin";
 		
 		String brokerPassword = System.getenv("BROKER_PASSWORD");
-		if (brokerPassword == null) brokerPassword = "admin";
+		if (brokerPassword == null) brokerPassword = "zFLM8zMsPq1mcafK";
 		
 		postToSla= new Publisher("eu-ontology-sla-publisher", "eu.nebulouscloud.ontology.sla", true, true);
 		slaFromUi = new Consumer("bqa",        "eu.nebulouscloud.ontology.bqa", slaHandler, true, true);
