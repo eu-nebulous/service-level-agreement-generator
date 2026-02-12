@@ -56,20 +56,18 @@ public class EXNConnection {
 		    @SuppressWarnings({ "rawtypes", "unchecked" })
 			@Override
 		    public void onMessage(String key, String address, Map body, Message message, Context context) {
+//		    	System.out.println(body);
 		    	try {
-			    	String uuid = (String) message.property("application");
+			    	String uuid = (String) message.property("application");	
 
 					SLA sla = new SLA(uuid);
-//					System.out.println("SLANAME: " +sla.getSlaName());
-//					System.out.println(ontology.countInstances("{SLA_" + sla.getSlaName() + "}"));
 					
-//					if(ontology.countInstances("{SLA_" + sla.getSlaName() + "}") > 0) {
-//						for(String indName:ontology.getInstances("partOf value SLA_" + sla.getSlaName())) {
-//							ontology.deleteIndividual(indName);
-//						}
-//						System.out.println("Deleting SLA_" + sla.getSlaName());
-//						ontology.deleteIndividual("SLA_" + sla.getSlaName());
-//					}
+					if(ontology.countInstances("{SLA_" + sla.getSlaName() + "}") > 0) {
+						for(String indName:ontology.getInstances("partOf value SLA_" + sla.getSlaName())) {
+							ontology.deleteIndividual(indName);
+						}
+						ontology.deleteIndividual("SLA_" + sla.getSlaName());
+					}
 					
 					Set<Metric> metrics = new HashSet<Metric>();
 					
@@ -79,10 +77,8 @@ public class EXNConnection {
 											
 			    	List<Map> slList = new ArrayList<Map>();
 			    	
-			    	Map sl1 = (Map) body.get("sloViolations");
-			    	sl1.put("evaluationPeriod", "1600");
-			    	sl1.put("violationThreshold", "4");
-			    	slList.add(sl1);
+			    	Map sl1Map = (Map) body.get("sloViolations");
+			    	slList.add(sl1Map);
 			    	
 			    	ObjectMapper objectMapper = new ObjectMapper();
 			    	slList.addAll(objectMapper.readValue((String) body.get("slCreations"), new TypeReference<List>(){}));
@@ -96,16 +92,16 @@ public class EXNConnection {
 
 			    			if (slNumber == slList.size()) {
 			    				settlement = new Settlement(
-			    						"PT" + Integer.toString(Integer.parseInt((String) slMap.get("evaluationPeriod"))) + "S",
-			    						Integer.parseInt((String) slMap.get("violationThreshold")),
+			    						"PT" + Integer.toString( Integer.parseInt(((String) slMap.get("evaluationPeriod")).trim())) + "S",
+			    						Integer.parseInt(((String) slMap.get("violationThreshold")).trim()),
 			    						Integer.toString(slNumber));
 
 			    			}else {		
 			    				trans.add(new SLTransition(
 				    					Integer.toString(slNumber), 
 				    					Integer.toString(slNumber + 1),
-			    						"PT" + Integer.toString(Integer.parseInt((String) slMap.get("evaluationPeriod"))) + "S",
-						    			Integer.parseInt((String) slMap.get("violationThreshold"))));
+			    						"PT" + Integer.toString(Integer.parseInt(((String) slMap.get("evaluationPeriod")).trim())) + "S",
+						    			Integer.parseInt(((String) slMap.get("violationThreshold")).trim())));
 			    			}
 			    		}
 			    		
@@ -145,40 +141,18 @@ public class EXNConnection {
 					
 					
 					sla.createCompleteSla();
-					ontology.validate(uuid);
+					boolean valid = ontology.validate(uuid);
+					
+					if(valid)
+						publishSLA(sla);
+						
 				} catch (ClientException | JsonProcessingException  e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 
-		    	
-//				try {
-//					String uuid = (String) message.property("application");
-//					map = objectMapper.readValue((String) body.get("sloViolations"), new TypeReference<Map<String,Object>>(){});
-//			        
-////					ontology.createPolicy(p);
-//					System.out.println(map);
-//
-//				} catch (JsonProcessingException | ClientException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-		    	
-//		        Policy p = Policy.ConstructPolicy((Map) ((Map) body.get("body")).get("slMetaConstraints"));
-//		        
-//		        String uuid = p.getAsset().split(":")[1];
-//		        ontology.createPolicy(sla);
-//		        ontology.validate(uuid);
-		        
-//		        try {
-//					bqaVerification.send(Map.of("uuid", uuid, "valid", valid, "message", 
-//							valid ? "The application is valid" : "The application is not valid"),
-//							uuid, Map.of("correlation-id", message.correlationId().toString()));
-//				} catch (ClientException e) {
-//					e.printStackTrace();
-//				}
+
 		    }
 		};
-//		getFromUi = new SyncedPublisher("eu-app-get-publisher", "eu.nebulouscloud.ui.app.get", true, true);
 		
 		String brokerUrl = System.getenv("BROKER_URL");
 		if (brokerUrl == null) brokerUrl = "localhost";
@@ -190,7 +164,7 @@ public class EXNConnection {
 		if (brokerUsername == null) brokerUsername = "admin";
 		
 		String brokerPassword = System.getenv("BROKER_PASSWORD");
-		if (brokerPassword == null) brokerPassword = "zFLM8zMsPq1mcafK";
+		if (brokerPassword == null) brokerPassword = "admin";
 		
 		postToSla= new Publisher("eu-ontology-sla-publisher", "eu.nebulouscloud.ontology.sla", true, true);
 		slaFromUi = new Consumer("bqa",        "eu.nebulouscloud.ontology.bqa", slaHandler, true, true);
@@ -208,9 +182,6 @@ public class EXNConnection {
 		return singleton;
 	}
 	
-//	public Map getApp(String appId) {
-//		return getFromUi.sendSync(Map.of("appId", appId), appId, null, false);
-//	}
 	
 	public void publishSLA(SLA sla) {
 		Map m = new HashMap(new ObjectMapper().convertValue(sla, new TypeReference<Map<String, Object>>() {}));
