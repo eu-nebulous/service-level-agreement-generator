@@ -91,10 +91,10 @@ public class OntologyConnection{
 			.retrieve().bodyToMono(String[].class).block());	
 	}
 	
-	public void validate(String uuid) {
-		bqaClient.get().uri("/validate?uuid=" + encode(uuid))
+	public boolean validate(String uuid) {
+		return bqaClient.get().uri("/validate?uuid=" + encode(uuid))
 		.accept(MediaType.APPLICATION_JSON)
-		.retrieve().bodyToMono(String[].class).block();	
+		.retrieve().bodyToMono(Boolean.class).block();	
 	}
 	
 	private String encode(String query) {
